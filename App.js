@@ -4,6 +4,8 @@ import { Provider } from "react-redux";
 import { store } from "./store";
 
 import HomeScreen from "./screens/HomeScreen";
+import SignUpScreen from "./screens/SignUpScreen";
+import ConfirmCodeScreen from "./screens/ConfirmCodeScreen";
 
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import "react-native-gesture-handler";
@@ -27,6 +29,20 @@ export default function App() {
               <Stack.Screen
                 name="HomeScreen"
                 component={HomeScreen}
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="SignUpScreen"
+                component={SignUpScreen}
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="ConfirmCodeScreen"
+                component={ConfirmCodeScreen}
                 options={{
                   headerShown: false,
                 }}
