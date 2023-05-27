@@ -9,9 +9,16 @@ import {
 } from "react-native";
 import { Icon } from "react-native-elements";
 import tw from "tailwind-react-native-classnames";
+import { useNavigation } from "@react-navigation/native";
 
 const RequestCard = ({ request }) => {
   const firstName = request.riderName.split(" ")[0];
+  const navigation = useNavigation();
+
+  const handleAcceptRequest = () => {
+    navigation.navigate("OneRequestScreen", { ride: request });
+    console.log(request.rideID);
+  };
 
   return (
     <View style={tw`bg-white rounded-sm p-4 mb-4 pb-2`}>
@@ -39,14 +46,18 @@ const RequestCard = ({ request }) => {
         <Text style={tw`text-lg`}>{request.dropoff}</Text>
       </View>
 
-      <TouchableOpacity style={tw`bg-black rounded-sm p-2 mt-4`}>
+      <TouchableOpacity
+        style={tw`bg-black rounded-sm p-2 mt-4`}
+        onPress={handleAcceptRequest}
+      >
         <Text style={tw`text-center text-white font-bold`}>Accept Request</Text>
       </TouchableOpacity>
     </View>
   );
 };
 
-const RequestsScreen = ({ navigation }) => {
+const RequestsScreen = () => {
+  const navigation = useNavigation();
   const [driver, setDriver] = useState({
     isOnline: false,
     driverId: "58674001",
@@ -59,40 +70,6 @@ const RequestsScreen = ({ navigation }) => {
     isAvailable: true,
   });
 
-  /*
-  const requests = [
-    // Fill this with actual data
-    {
-      riderName: "Vivica Gathoni",
-      price: "390",
-      distance: "25",
-      pickup: "Thika Road Mall",
-      dropoff: "Tabby House, Thika",
-    },
-    {
-      riderName: "John Njau",
-      price: "510",
-      distance: "10",
-      pickup: "ABC Place",
-      dropoff: "Imara Daima Mall",
-    },
-    {
-      riderName: "Steve Mbatia",
-      price: "1290",
-      distance: "17.5",
-      pickup: "Pizza Inn, Kahawa Sukari",
-      dropoff: "TRM, Thika Road",
-    },
-    {
-      riderName: "Diana Nyakonyu",
-      price: "485",
-      distance: "12",
-      pickup: "ABC Place, Westlands",
-      dropoff: "Copper Ivy, Ojijo Road",
-    },
-    // ... more requests ...
-  ];
-*/
   const [requests, setRequests] = useState([]);
 
   const handleToggleStatus = () => {
@@ -108,16 +85,33 @@ const RequestsScreen = ({ navigation }) => {
       try {
         const response = await fetch("https://randomuser.me/api/?results=10");
         const data = await response.json();
-        const fetchedRequests = data.results.map((user) => {
+        const randomNumber = Math.floor(Math.random() * 90000000) + 10000000;
+        const riderPhone = "+2547" + randomNumber.toString();
+
+        const fetchedRequests = data.results.map((user, index) => {
+          const currentDate = new Date();
+          const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+          const day = String(currentDate.getDate()).padStart(2, "0");
+          const rideID = `${month}${day}${String(index + 1).padStart(3, "0")}`;
+
           return {
+            rideID,
             riderName: user.name.first + " " + user.name.last,
             price: (Math.random() * 1000).toFixed(2),
             distance: (Math.random() * 100).toFixed(2),
             pickup: "TRM Drive, Thika Road",
             dropoff: "Tabby House, Thika",
             riderAvatar: user.picture.medium,
+            amount: (Math.random() * 1000).toFixed(2),
+            tripFare: {
+              amount: (Math.random() * 1000).toFixed(2),
+              discount: (Math.random() * 100).toFixed(2),
+              totalAmount: (Math.random() * 1000).toFixed(2),
+            },
+            riderPhone: riderPhone,
           };
         });
+
         setRequests(fetchedRequests);
       } catch (error) {
         console.error("Error fetching requests:", error);
@@ -126,12 +120,6 @@ const RequestsScreen = ({ navigation }) => {
 
     fetchData();
   }, []);
-
-  useEffect(() => {
-    // You can handle side effects here, for example,
-    // send the new status to the backend or update the local storage.
-    // console.log("Driver status changed", driver.isOnline);
-  }, [driver.isOnline]);
 
   return (
     <SafeAreaView style={tw`pt-10 flex-1`}>

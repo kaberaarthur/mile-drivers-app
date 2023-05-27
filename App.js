@@ -9,6 +9,7 @@ import ConfirmCodeScreen from "./screens/ConfirmCodeScreen";
 import MenuScreen from "./screens/MenuScreen";
 
 import RequestsScreen from "./screens/RequestsScreen";
+import OneRequestScreen from "./screens/OneRequestScreen";
 
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import "react-native-gesture-handler";
@@ -61,6 +62,13 @@ export default function App() {
               <Stack.Screen
                 name="RequestsScreen"
                 component={RequestsScreen}
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="OneRequestScreen"
+                component={OneRequestScreen}
                 options={{
                   headerShown: false,
                 }}
