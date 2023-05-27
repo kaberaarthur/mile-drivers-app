@@ -11,9 +11,11 @@ import {
   setRating,
   setIsAvailable,
 } from "../slices/driverSlice.js";
-import { SafeAreaView, Text } from "react-native";
+import { SafeAreaView, Text, View, TouchableOpacity } from "react-native";
 import tw from "tailwind-react-native-classnames";
 import { useEffect } from "react";
+import { Icon } from "react-native-elements";
+import { useNavigation } from "@react-navigation/native";
 
 const HomeScreen = () => {
   const dispatch = useDispatch();
@@ -34,10 +36,19 @@ const HomeScreen = () => {
   }, []);
 
   const driver = useSelector(selectDriver);
+  const navigation = useNavigation();
 
   return (
-    <SafeAreaView style={tw`px-5 py-10`}>
-      <Text>HomeScreen</Text>
+    <SafeAreaView style={tw`px-5 py-10 flex-1`}>
+      <View style={tw`flex-row justify-between items-center`}>
+        <Text style={tw`text-xl font-semibold`}>HomeScreen</Text>
+        <TouchableOpacity
+          onPress={() => navigation.navigate("MenuScreen")}
+          style={tw`bg-black p-2 rounded-full`}
+        >
+          <Icon type="ionicon" name="menu-outline" color="white" size={24} />
+        </TouchableOpacity>
+      </View>
       <Text>Driver ID: {driver.driverId}</Text>
       <Text>Driver Name: {driver.driverName}</Text>
       <Text>Driver Phone: {driver.driverPhone}</Text>
