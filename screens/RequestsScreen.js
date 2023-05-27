@@ -11,15 +11,17 @@ import { Icon } from "react-native-elements";
 import tw from "tailwind-react-native-classnames";
 
 const RequestCard = ({ request }) => {
+  const firstName = request.riderName.split(" ")[0];
+
   return (
     <View style={tw`bg-white rounded-sm p-4 mb-4 pb-2`}>
       <View style={tw`flex-row justify-between items-center `}>
         <View style={tw`flex-row items-center`}>
           <Image
             style={tw`w-10 h-10 rounded-full mr-2`}
-            source={{ uri: "https://via.placeholder.com/100" }}
+            source={{ uri: request.riderAvatar }}
           />
-          <Text style={tw`text-lg font-bold pl-2`}>{request.riderName}</Text>
+          <Text style={tw`text-lg font-bold pl-2`}>{firstName}</Text>
         </View>
         <View>
           <Text style={tw`text-lg font-bold`}>Kshs {request.price}</Text>
@@ -37,8 +39,8 @@ const RequestCard = ({ request }) => {
         <Text style={tw`text-lg`}>{request.dropoff}</Text>
       </View>
 
-      <TouchableOpacity style={tw`bg-yellow-500 rounded-sm p-2 mt-4`}>
-        <Text style={tw`text-center text-black font-bold`}>Accept Request</Text>
+      <TouchableOpacity style={tw`bg-black rounded-sm p-2 mt-4`}>
+        <Text style={tw`text-center text-white font-bold`}>Accept Request</Text>
       </TouchableOpacity>
     </View>
   );
@@ -48,7 +50,7 @@ const RequestsScreen = ({ navigation }) => {
   const [driver, setDriver] = useState({
     isOnline: false,
     driverId: "58674001",
-    driverName: "JMuiruri Kabera",
+    driverName: "Muiruri Kabera",
     driverPhone: "+254790485731",
     carMake: "Toyota",
     carModel: "Vitz",
@@ -57,6 +59,7 @@ const RequestsScreen = ({ navigation }) => {
     isAvailable: true,
   });
 
+  /*
   const requests = [
     // Fill this with actual data
     {
@@ -89,6 +92,8 @@ const RequestsScreen = ({ navigation }) => {
     },
     // ... more requests ...
   ];
+*/
+  const [requests, setRequests] = useState([]);
 
   const handleToggleStatus = () => {
     // Toggle driver status here
@@ -97,6 +102,30 @@ const RequestsScreen = ({ navigation }) => {
       isOnline: !prevDriver.isOnline,
     }));
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("https://randomuser.me/api/?results=10");
+        const data = await response.json();
+        const fetchedRequests = data.results.map((user) => {
+          return {
+            riderName: user.name.first + " " + user.name.last,
+            price: (Math.random() * 1000).toFixed(2),
+            distance: (Math.random() * 100).toFixed(2),
+            pickup: "TRM Drive, Thika Road",
+            dropoff: "Tabby House, Thika",
+            riderAvatar: user.picture.medium,
+          };
+        });
+        setRequests(fetchedRequests);
+      } catch (error) {
+        console.error("Error fetching requests:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   useEffect(() => {
     // You can handle side effects here, for example,
