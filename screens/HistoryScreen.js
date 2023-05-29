@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, TouchableOpacity, ScrollView, Image } from "react-native";
 import { Icon } from "react-native-elements";
 import tw from "tailwind-react-native-classnames";
@@ -9,6 +9,11 @@ const HistoryScreen = () => {
       {
         id: "1",
         date: "2023-05-11",
+        rideDateID: 51123,
+        rideMonth: "May",
+        rideDay: "11",
+        rideDayOfWeek: "Thu",
+        rideYear: "2023",
         riderName: "John Murii",
         amountPaid: "2020",
         kilometers: "8.5",
@@ -20,6 +25,11 @@ const HistoryScreen = () => {
       {
         id: "2",
         date: "2023-05-13",
+        rideDateID: 51323,
+        rideMonth: "May",
+        rideDay: "13",
+        rideDayOfWeek: "Sat",
+        rideYear: "2023",
         riderName: "Jane Njau",
         amountPaid: "180",
         kilometers: "5.2",
@@ -30,7 +40,12 @@ const HistoryScreen = () => {
       },
       {
         id: "3",
-        date: "2023-05-12",
+        date: "2023-05-13",
+        rideDateID: 51323,
+        rideMonth: "May",
+        rideDay: "13",
+        rideDayOfWeek: "Sat",
+        rideYear: "2023",
         riderName: "David Wangari",
         amountPaid: "900",
         kilometers: "3.8",
@@ -42,6 +57,11 @@ const HistoryScreen = () => {
       {
         id: "4",
         date: "2023-12-24",
+        rideDateID: 122423,
+        rideMonth: "Dec",
+        rideDay: "24",
+        rideDayOfWeek: "Sun",
+        rideYear: "2023",
         riderName: "Mary Kamau",
         amountPaid: "650",
         kilometers: "2.5",
@@ -55,7 +75,25 @@ const HistoryScreen = () => {
   };
 
   const renderDateButtons = () => {
-    const datesWithRides = historyData.rides.map((ride) => ride.date);
+    const [selectedButton, setSelectedButton] = React.useState(null);
+
+    const rideDateIDs = Array.from(
+      new Set(historyData.rides.map((ride) => ride.rideDateID))
+    );
+
+    /*
+    useEffect(() => {
+      // Set the last rideDataID as the selected button when the component mounts
+      if (rideDateIDs.length > 0) {
+        setSelectedButton(rideDateIDs[rideDateIDs.length - 1]);
+      }
+    }, [rideDateIDs]);
+    */
+
+    const handleButtonPress = (rideDateID) => {
+      setSelectedButton(rideDateID);
+      console.log(rideDateID);
+    };
 
     return (
       <ScrollView
@@ -63,41 +101,38 @@ const HistoryScreen = () => {
         contentContainerStyle={tw`flex-row mb-4`}
         showsHorizontalScrollIndicator={false}
       >
-        {historyData.rides.map((ride) => {
-          const rideDate = new Date(ride.date);
-          const formattedDay = rideDate.toLocaleDateString("en-US", {
-            weekday: "short",
-          });
-          const formattedDayShort = formattedDay.substring(0, 3);
-          const formattedDate = rideDate.getDate();
-          const hasRides = datesWithRides.includes(ride.date);
+        {rideDateIDs.map((rideDateID) => {
+          const isSelected = selectedButton === rideDateID;
+          const ride = historyData.rides.find(
+            (ride) => ride.rideDateID === rideDateID
+          );
 
           return (
             <TouchableOpacity
-              key={ride.date}
+              key={rideDateID}
               style={[
-                tw`rounded-md h-24 p-4 mr-2`,
-                hasRides ? tw`bg-gray-100` : tw`bg-gray-200`,
+                tw`rounded-md h-24 p-4 mr-2 bg-gray-100`,
+                isSelected ? tw`border-2 border-yellow-500` : null,
               ]}
-              disabled={!hasRides}
               activeOpacity={0.7}
+              onPress={() => handleButtonPress(rideDateID)}
             >
               <View style={tw`flex items-center`}>
                 <Text
                   style={[
                     tw`text-center text-lg`,
-                    hasRides ? tw`text-gray-400` : tw`text-gray-500`,
+                    isSelected ? tw`text-yellow-500` : null,
                   ]}
                 >
-                  {formattedDayShort}
+                  {ride.rideDay}
                 </Text>
                 <Text
                   style={[
                     tw`text-center text-lg`,
-                    hasRides ? tw`text-gray-400` : tw`text-gray-500`,
+                    isSelected ? tw`text-yellow-500` : null,
                   ]}
                 >
-                  {formattedDate}
+                  {ride.rideDayOfWeek}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -109,7 +144,7 @@ const HistoryScreen = () => {
 
   const renderRideCard = (ride) => {
     return (
-      <View key={ride.id} style={tw`bg-gray-100 p-4 mb-4`}>
+      <View key={ride.id} style={tw`bg-white p-4 mb-4`}>
         <View style={tw`flex-row items-center mb-2`}>
           <Image
             source={{
