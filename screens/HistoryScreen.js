@@ -1,9 +1,10 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, ScrollView, Image } from "react-native";
 import { Icon } from "react-native-elements";
 import tw from "tailwind-react-native-classnames";
 
 const HistoryScreen = () => {
+  const [selectedButton, setSelectedButton] = React.useState(null);
   const historyData = {
     rides: [
       {
@@ -75,24 +76,12 @@ const HistoryScreen = () => {
   };
 
   const renderDateButtons = () => {
-    const [selectedButton, setSelectedButton] = React.useState(null);
-
     const rideDateIDs = Array.from(
       new Set(historyData.rides.map((ride) => ride.rideDateID))
     );
 
-    /*
-    useEffect(() => {
-      // Set the last rideDataID as the selected button when the component mounts
-      if (rideDateIDs.length > 0) {
-        setSelectedButton(rideDateIDs[rideDateIDs.length - 1]);
-      }
-    }, [rideDateIDs]);
-    */
-
     const handleButtonPress = (rideDateID) => {
       setSelectedButton(rideDateID);
-      console.log(rideDateID);
     };
 
     return (
@@ -172,6 +161,28 @@ const HistoryScreen = () => {
     );
   };
 
+  // Render rides based on selected rideDateID
+  const renderRides = () => {
+    if (selectedButton) {
+      const ridesByDate = historyData.rides.filter(
+        (ride) => ride.rideDateID === selectedButton
+      );
+
+      return (
+        <View style={tw`py-4`}>
+          {ridesByDate.map((ride) => renderRideCard(ride))}
+        </View>
+      );
+    } else {
+      // Render all rides if no rideDateID is selected
+      return (
+        <View style={tw`py-4`}>
+          {historyData.rides.map((ride) => renderRideCard(ride))}
+        </View>
+      );
+    }
+  };
+
   return (
     <View style={tw`flex-1 bg-white `}>
       <View style={tw`pt-10 px-4`}>
@@ -211,7 +222,8 @@ const HistoryScreen = () => {
 
         {/* Rides History */}
         <View style={tw`py-4`}>
-          {historyData.rides.map((ride) => renderRideCard(ride))}
+          {/* historyData.rides.map((ride) => renderRideCard(ride))*/}
+          {renderRides()}
         </View>
       </ScrollView>
     </View>
