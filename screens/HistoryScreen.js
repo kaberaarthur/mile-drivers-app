@@ -4,7 +4,9 @@ import { Icon } from "react-native-elements";
 import tw from "tailwind-react-native-classnames";
 
 const HistoryScreen = () => {
-  const [selectedButton, setSelectedButton] = React.useState(null);
+  const [selectedButton, setSelectedButton] = useState(null);
+  const [filteredRides, setFilteredRides] = useState([]);
+
   const historyData = {
     rides: [
       {
@@ -161,27 +163,21 @@ const HistoryScreen = () => {
     );
   };
 
-  // Render rides based on selected rideDateID
-  const renderRides = () => {
+  useEffect(() => {
+    let ridesToRender = [];
+
     if (selectedButton) {
-      const ridesByDate = historyData.rides.filter(
+      ridesToRender = historyData.rides.filter(
         (ride) => ride.rideDateID === selectedButton
       );
-
-      return (
-        <View style={tw`py-4`}>
-          {ridesByDate.map((ride) => renderRideCard(ride))}
-        </View>
-      );
     } else {
-      // Render all rides if no rideDateID is selected
-      return (
-        <View style={tw`py-4`}>
-          {historyData.rides.map((ride) => renderRideCard(ride))}
-        </View>
-      );
+      ridesToRender = historyData.rides;
     }
-  };
+
+    setFilteredRides(ridesToRender); // Update filtered rides state
+  }, [selectedButton]);
+
+  const totalJobs = filteredRides.length;
 
   return (
     <View style={tw`flex-1 bg-white `}>
@@ -204,7 +200,7 @@ const HistoryScreen = () => {
               <Icon type="ionicon" name="car-outline" color="black" size={24} />
             </View>
             <Text style={tw`text-gray-800 text-sm`}>Total Jobs</Text>
-            <Text style={tw`text-gray-800 text-xl font-bold`}>10</Text>
+            <Text style={tw`text-gray-800 text-xl font-bold`}>{totalJobs}</Text>
           </View>
           <View style={[tw`flex-1 bg-yellow-600 rounded-sm p-4 ml-2`]}>
             <View style={tw`flex-row items-center mb-2`}>
@@ -222,8 +218,7 @@ const HistoryScreen = () => {
 
         {/* Rides History */}
         <View style={tw`py-4`}>
-          {/* historyData.rides.map((ride) => renderRideCard(ride))*/}
-          {renderRides()}
+          {filteredRides.map((ride) => renderRideCard(ride))}
         </View>
       </ScrollView>
     </View>
