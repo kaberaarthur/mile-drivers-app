@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, Image } from "react-native";
 import { Icon } from "react-native-elements";
 import tw from "tailwind-react-native-classnames";
 
@@ -107,17 +107,78 @@ const HistoryScreen = () => {
     );
   };
 
+  const renderRideCard = (ride) => {
+    return (
+      <View key={ride.id} style={tw`bg-gray-100 p-4 mb-4`}>
+        <View style={tw`flex-row items-center mb-2`}>
+          <Image
+            source={{
+              uri: `https://via.placeholder.com/100x100.png?text=${ride.riderName}`,
+            }}
+            style={tw`w-24 h-16 rounded-lg`}
+          />
+          <Text style={tw`text-lg ml-2`}>{ride.riderName}</Text>
+        </View>
+        <Text style={tw`text-gray-900 text-lg font-bold mb-1`}>
+          Kshs. {ride.amountPaid}
+        </Text>
+        <Text style={tw`text-gray-900`}>{ride.kilometers} kilometers</Text>
+        <View style={tw`border-t border-gray-300 mt-2 pt-2`}>
+          <Text style={tw`text-gray-400`}>PICK UP</Text>
+          <Text style={tw`text-gray-900 font-bold text-lg`}>
+            {ride.pickupLocation}
+          </Text>
+          <Text style={tw`text-gray-400 mt-2`}>DROP OFF</Text>
+          <Text style={tw`text-gray-900 font-bold text-lg`}>
+            {ride.dropoffLocation}
+          </Text>
+        </View>
+      </View>
+    );
+  };
+
   return (
-    <View style={tw`flex-1 bg-white py-10 px-4`}>
-      <View style={tw`flex-row items-center justify-between mb-4`}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Icon type="ionicon" name="menu-outline" color="black" size={24} />
-        </TouchableOpacity>
-        <Text style={tw`text-lg font-bold`}>History</Text>
-        <View style={tw`w-6`} />
+    <View style={tw`flex-1 bg-white `}>
+      <View style={tw`pt-10 px-4`}>
+        <View style={tw`flex-row items-center justify-between mb-4`}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Icon type="ionicon" name="menu-outline" color="black" size={24} />
+          </TouchableOpacity>
+          <Text style={tw`text-lg font-bold`}>History</Text>
+          <View style={tw`w-6`} />
+        </View>
+
+        {renderDateButtons()}
       </View>
 
-      {renderDateButtons()}
+      <ScrollView style={tw`flex-1 bg-gray-100`}>
+        <View style={tw`flex-row pt-4 px-4`}>
+          <View style={[tw`flex-1 bg-yellow-400 rounded-sm p-4 mr-2`]}>
+            <View style={tw`flex-row items-center mb-2`}>
+              <Icon type="ionicon" name="car-outline" color="black" size={24} />
+            </View>
+            <Text style={tw`text-gray-800 text-sm`}>Total Jobs</Text>
+            <Text style={tw`text-gray-800 text-xl font-bold`}>10</Text>
+          </View>
+          <View style={[tw`flex-1 bg-yellow-600 rounded-sm p-4 ml-2`]}>
+            <View style={tw`flex-row items-center mb-2`}>
+              <Icon
+                type="ionicon"
+                name="cash-outline"
+                color="black"
+                size={24}
+              />
+            </View>
+            <Text style={tw`text-gray-800 text-sm`}>Earned Cash</Text>
+            <Text style={tw`text-gray-800 text-xl font-bold`}>Kshs. 3280</Text>
+          </View>
+        </View>
+
+        {/* Rides History */}
+        <View style={tw`py-4`}>
+          {historyData.rides.map((ride) => renderRideCard(ride))}
+        </View>
+      </ScrollView>
     </View>
   );
 };
