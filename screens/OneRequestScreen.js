@@ -86,7 +86,10 @@ const OneRequestScreen = ({ route }) => {
             <Text style={tw`text-sm text-center`}>Call</Text>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity style={tw`items-center`}>
+        <TouchableOpacity
+          style={tw`items-center`}
+          onPress={() => navigation.navigate("ChatScreen")}
+        >
           <View style={tw`items-center`}>
             <Icon
               type="ionicon"

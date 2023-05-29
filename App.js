@@ -10,6 +10,9 @@ import MenuScreen from "./screens/MenuScreen";
 
 import RequestsScreen from "./screens/RequestsScreen";
 import OneRequestScreen from "./screens/OneRequestScreen";
+import ChatScreen from "./screens/ChatScreen";
+
+import HistoryScreen from "./screens/HistoryScreen";
 
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import "react-native-gesture-handler";
@@ -69,6 +72,21 @@ export default function App() {
               <Stack.Screen
                 name="OneRequestScreen"
                 component={OneRequestScreen}
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="ChatScreen"
+                component={ChatScreen}
+                options={{
+                  headerShown: false,
+                }}
+              />
+
+              <Stack.Screen
+                name="HistoryScreen"
+                component={HistoryScreen}
                 options={{
                   headerShown: false,
                 }}

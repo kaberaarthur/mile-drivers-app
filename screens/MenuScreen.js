@@ -24,16 +24,11 @@ function MenuScreen({ navigation }) {
   const menuItems = [
     { name: "Sign Up", icon: "person-add-outline", screen: "SignUpScreen" },
     { name: "Verify Phone", icon: "call-outline", screen: "VerifyPhoneScreen" },
-    { name: "Home", icon: "home-outline", screen: "HomeScreen" },
+    { name: "History", icon: "albums-outline", screen: "HistoryScreen" },
     {
       name: "Requests",
       icon: "notifications-outline",
       screen: "RequestsScreen",
-    },
-    {
-      name: "One Request",
-      icon: "paper-plane-outline",
-      screen: "OneRequestScreen",
     },
     { name: "Ride", icon: "car-outline", screen: "RideScreen" },
     { name: "Pickup", icon: "location-outline", screen: "PickupScreen" },
