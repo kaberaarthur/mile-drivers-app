@@ -25,7 +25,8 @@
     "tailwind-react-native-classnames": "^1.5.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0"
+    "@babel/core": "^7.20.0",
+    "json-loader": "^0.5.7"
   },
   "private": true
 }
