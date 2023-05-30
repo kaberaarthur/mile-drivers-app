@@ -9,8 +9,10 @@ import {
 } from "react-native";
 import { Icon } from "react-native-elements";
 import tw from "tailwind-react-native-classnames";
+import { useNavigation } from "@react-navigation/native";
 
-function MenuScreen({ navigation }) {
+function MenuScreen() {
+  const navigation = useNavigation();
   const userData = {
     name: "John Doe",
     rating: "4.7",
@@ -29,6 +31,11 @@ function MenuScreen({ navigation }) {
       name: "Requests",
       icon: "notifications-outline",
       screen: "RequestsScreen",
+    },
+    {
+      name: "Notifications",
+      icon: "copy-outline",
+      screen: "NotificationScreen",
     },
     { name: "Ride", icon: "car-outline", screen: "RideScreen" },
     { name: "Pickup", icon: "location-outline", screen: "PickupScreen" },

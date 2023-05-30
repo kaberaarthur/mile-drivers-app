@@ -13,6 +13,7 @@ import OneRequestScreen from "./screens/OneRequestScreen";
 import ChatScreen from "./screens/ChatScreen";
 
 import HistoryScreen from "./screens/HistoryScreen";
+import NotificationScreen from "./screens/NotificationScreen";
 
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import "react-native-gesture-handler";
@@ -87,6 +88,13 @@ export default function App() {
               <Stack.Screen
                 name="HistoryScreen"
                 component={HistoryScreen}
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="NotificationScreen"
+                component={NotificationScreen}
                 options={{
                   headerShown: false,
                 }}
