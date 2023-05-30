@@ -6,6 +6,7 @@ import {
   Image,
   TouchableOpacity,
   StyleSheet,
+  ScrollView,
 } from "react-native";
 import { Icon } from "react-native-elements";
 import tw from "tailwind-react-native-classnames";
@@ -38,6 +39,11 @@ function MenuScreen() {
       screen: "NotificationScreen",
     },
     { name: "Ride", icon: "car-outline", screen: "RideScreen" },
+    {
+      name: "Vehicle Management",
+      icon: "car-sport-outline",
+      screen: "VehicleManagementScreen",
+    },
     { name: "Pickup", icon: "location-outline", screen: "PickupScreen" },
   ];
 
@@ -76,19 +82,22 @@ function MenuScreen() {
         </View>
       </View>
       <View style={tw`h-0.5 bg-gray-400 mb-8`} />
-
-      {menuItems.map((item, index) => (
-        <TouchableOpacity
-          key={index}
-          style={tw`flex-row items-center mb-5`}
-          onPress={() => navigation.navigate(item.screen)}
-        >
-          <View style={[tw`p-2 rounded-full`, { backgroundColor: "#F5B800" }]}>
-            <Icon type="ionicon" name={item.icon} color="black" size={24} />
-          </View>
-          <Text style={tw`ml-4 text-lg`}>{item.name}</Text>
-        </TouchableOpacity>
-      ))}
+      <ScrollView>
+        {menuItems.map((item, index) => (
+          <TouchableOpacity
+            key={index}
+            style={tw`flex-row items-center mb-5`}
+            onPress={() => navigation.navigate(item.screen)}
+          >
+            <View
+              style={[tw`p-2 rounded-full`, { backgroundColor: "#F5B800" }]}
+            >
+              <Icon type="ionicon" name={item.icon} color="black" size={24} />
+            </View>
+            <Text style={tw`ml-4 text-lg`}>{item.name}</Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
     </SafeAreaView>
   );
 }

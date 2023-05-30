@@ -15,6 +15,8 @@ import ChatScreen from "./screens/ChatScreen";
 import HistoryScreen from "./screens/HistoryScreen";
 import NotificationScreen from "./screens/NotificationScreen";
 
+import VehicleManagementScreen from "./screens/VehicleManagementScreen";
+
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import "react-native-gesture-handler";
 import { NavigationContainer } from "@react-navigation/native";
@@ -95,6 +97,14 @@ export default function App() {
               <Stack.Screen
                 name="NotificationScreen"
                 component={NotificationScreen}
+                options={{
+                  headerShown: false,
+                }}
+              />
+
+              <Stack.Screen
+                name="VehicleManagementScreen"
+                component={VehicleManagementScreen}
                 options={{
                   headerShown: false,
                 }}
