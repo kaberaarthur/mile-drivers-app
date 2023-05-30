@@ -16,6 +16,7 @@ import HistoryScreen from "./screens/HistoryScreen";
 import NotificationScreen from "./screens/NotificationScreen";
 
 import VehicleManagementScreen from "./screens/VehicleManagementScreen";
+import AddVehicleScreen from "./screens/AddVehicleScreen";
 
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import "react-native-gesture-handler";
@@ -105,6 +106,13 @@ export default function App() {
               <Stack.Screen
                 name="VehicleManagementScreen"
                 component={VehicleManagementScreen}
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="AddVehicleScreen"
+                component={AddVehicleScreen}
                 options={{
                   headerShown: false,
                 }}

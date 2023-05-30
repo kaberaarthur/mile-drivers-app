@@ -98,7 +98,7 @@ const VehicleManagementScreen = () => {
             tw`absolute bg-yellow-500 rounded-full p-2`,
             { bottom: 20, alignSelf: "center" },
           ]}
-          onPress={() => console.log("Add Vehicle Button Pressed")}
+          onPress={() => navigation.navigate("AddVehicleScreen")}
         >
           <Icon type="ionicon" name="add" color="black" size={48} />
         </TouchableOpacity>
