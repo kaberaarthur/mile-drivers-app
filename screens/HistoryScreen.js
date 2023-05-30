@@ -6,6 +6,7 @@ import tw from "tailwind-react-native-classnames";
 const HistoryScreen = () => {
   const [selectedButton, setSelectedButton] = useState(null);
   const [filteredRides, setFilteredRides] = useState([]);
+  const [totalEarned, setTotalEarned] = useState(0);
 
   const historyData = {
     rides: [
@@ -133,22 +134,31 @@ const HistoryScreen = () => {
     );
   };
 
+  function getRandomNumber() {
+    return Math.floor(Math.random() * (75 - 20 + 1)) + 20;
+  }
+
+  function getRandomGender() {
+    const genders = ["men", "women"];
+    return genders[Math.floor(Math.random() * genders.length)];
+  }
+
   const renderRideCard = (ride) => {
     return (
       <View key={ride.id} style={tw`bg-white p-4 mb-4`}>
         <View style={tw`flex-row items-center mb-2`}>
           <Image
             source={{
-              uri: `https://via.placeholder.com/100x100.png?text=${ride.riderName}`,
+              uri: `https://randomuser.me/api/portraits/med/${getRandomGender()}/${getRandomNumber()}.jpg`,
             }}
-            style={tw`w-24 h-16 rounded-lg`}
+            style={tw`w-16 h-16 rounded-lg`}
           />
           <Text style={tw`text-lg ml-2`}>{ride.riderName}</Text>
         </View>
         <Text style={tw`text-gray-900 text-lg font-bold mb-1`}>
           Kshs. {ride.amountPaid}
         </Text>
-        <Text style={tw`text-gray-900`}>{ride.kilometers} kilometers</Text>
+        <Text style={tw`text-gray-900`}>{ride.kilometers} KM</Text>
         <View style={tw`border-t border-gray-300 mt-2 pt-2`}>
           <Text style={tw`text-gray-400`}>PICK UP</Text>
           <Text style={tw`text-gray-900 font-bold text-lg`}>
@@ -165,6 +175,7 @@ const HistoryScreen = () => {
 
   useEffect(() => {
     let ridesToRender = [];
+    let totalEarnings = 0;
 
     if (selectedButton) {
       ridesToRender = historyData.rides.filter(
@@ -174,7 +185,13 @@ const HistoryScreen = () => {
       ridesToRender = historyData.rides;
     }
 
+    totalEarnings = ridesToRender.reduce(
+      (sum, ride) => sum + ride.amountPaid,
+      0
+    );
+
     setFilteredRides(ridesToRender); // Update filtered rides state
+    setTotalEarned(totalEarnings); // Update total earned state
   }, [selectedButton]);
 
   const totalJobs = filteredRides.length;
@@ -212,7 +229,9 @@ const HistoryScreen = () => {
               />
             </View>
             <Text style={tw`text-gray-800 text-sm`}>Earned Cash</Text>
-            <Text style={tw`text-gray-800 text-xl font-bold`}>Kshs. 3280</Text>
+            <Text style={tw`text-gray-800 text-xl font-bold`}>
+              Kshs. {totalEarned}
+            </Text>
           </View>
         </View>
 
