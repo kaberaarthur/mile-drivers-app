@@ -13,7 +13,7 @@ import tw from "tailwind-react-native-classnames";
 import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 
-const DrivingLicenseScreen = () => {
+const InsuranceStickerScreen = () => {
   const navigation = useNavigation();
   const [photo, setPhoto] = useState("");
   const [licenseNumber, setLicenseNumber] = useState("");
@@ -55,7 +55,7 @@ const DrivingLicenseScreen = () => {
   return (
     <View style={[tw`flex-1 bg-white`, tw`py-10`]}>
       <View style={tw`bg-white items-center`}>
-        <Text style={tw`text-xl font-bold`}>Driving License</Text>
+        <Text style={tw`text-xl font-bold`}>Insurance Sticker</Text>
         <TouchableOpacity onPress={handleGoBack} style={tw`absolute left-3`}>
           <Ionicons name="arrow-back" size={24} />
         </TouchableOpacity>
@@ -153,4 +153,4 @@ const DrivingLicenseScreen = () => {
   );
 };
 
-export default DrivingLicenseScreen;
+export default InsuranceStickerScreen;
