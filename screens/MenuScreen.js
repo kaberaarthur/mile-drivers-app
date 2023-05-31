@@ -44,6 +44,13 @@ function MenuScreen() {
       icon: "car-sport-outline",
       screen: "VehicleManagementScreen",
     },
+
+    {
+      name: "Document Management",
+      icon: "copy-outline",
+      screen: "DocumentManagementScreen",
+    },
+
     { name: "Pickup", icon: "location-outline", screen: "PickupScreen" },
   ];
 

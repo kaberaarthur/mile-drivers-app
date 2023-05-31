@@ -18,6 +18,8 @@ import NotificationScreen from "./screens/NotificationScreen";
 import VehicleManagementScreen from "./screens/VehicleManagementScreen";
 import AddVehicleScreen from "./screens/AddVehicleScreen";
 
+import DocumentManagementScreen from "./screens/DocumentManagementScreen";
+
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import "react-native-gesture-handler";
 import { NavigationContainer } from "@react-navigation/native";
@@ -113,6 +115,14 @@ export default function App() {
               <Stack.Screen
                 name="AddVehicleScreen"
                 component={AddVehicleScreen}
+                options={{
+                  headerShown: false,
+                }}
+              />
+
+              <Stack.Screen
+                name="DocumentManagementScreen"
+                component={DocumentManagementScreen}
                 options={{
                   headerShown: false,
                 }}
