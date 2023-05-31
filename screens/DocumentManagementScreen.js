@@ -63,23 +63,6 @@ const DocumentManagementScreen = () => {
             <Text style={tw`text-lg font-semibold mt-2`}>Driving License</Text>
           </View>
         </TouchableOpacity>
-
-        <TouchableOpacity onPress={handleOpenInsuranceSticker}>
-          <View style={tw`bg-white rounded-md mx-4 my-4 p-4`}>
-            <View style={tw`flex-row items-center`}>
-              <View style={tw`bg-yellow-600 w-2/5 h-full rounded-md mr-4`} />
-              <View style={tw`flex-1`}>
-                <View style={tw`h-6 bg-gray-100 mb-2`} />
-                <View style={tw`h-6 bg-gray-100 mb-2`} />
-                <View style={tw`h-6 bg-gray-100 mb-2`} />
-                <View style={tw`h-6 bg-gray-100`} />
-              </View>
-            </View>
-            <Text style={tw`text-lg font-semibold mt-2`}>
-              Insurance Sticker
-            </Text>
-          </View>
-        </TouchableOpacity>
       </ScrollView>
     </View>
   );
