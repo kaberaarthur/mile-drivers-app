@@ -19,6 +19,10 @@ const DocumentManagementScreen = () => {
     navigation.navigate("InsuranceStickerScreen"); // Replace 'DrivingLicenseScreen' with the actual screen name of Driving License
   };
 
+  const handleIDCard = () => {
+    navigation.navigate("IDCardScreen"); // Replace 'DrivingLicenseScreen' with the actual screen name of Driving License
+  };
+
   return (
     <View style={[tw`flex-1 bg-white`, tw`py-10`]}>
       <View style={tw`bg-white items-center`}>
@@ -28,20 +32,22 @@ const DocumentManagementScreen = () => {
         </TouchableOpacity>
       </View>
       <ScrollView style={tw`bg-gray-100 flex-1`}>
-        <View style={tw`bg-white rounded-md mx-4 my-4 p-4`}>
-          <View style={tw`flex-row items-center`}>
-            <View style={tw`bg-yellow-400 w-2/5 h-full rounded-md mr-4`} />
-            <View style={tw`flex-1`}>
-              <View style={tw`h-6 bg-gray-100 mb-2`} />
-              <View style={tw`h-6 bg-gray-100 mb-2`} />
-              <View style={tw`h-6 bg-gray-100 mb-2`} />
-              <View style={tw`h-6 bg-gray-100`} />
+        <TouchableOpacity onPress={handleIDCard}>
+          <View style={tw`bg-white rounded-md mx-4 my-4 p-4`}>
+            <View style={tw`flex-row items-center`}>
+              <View style={tw`bg-yellow-400 w-2/5 h-full rounded-md mr-4`} />
+              <View style={tw`flex-1`}>
+                <View style={tw`h-6 bg-gray-100 mb-2`} />
+                <View style={tw`h-6 bg-gray-100 mb-2`} />
+                <View style={tw`h-6 bg-gray-100 mb-2`} />
+                <View style={tw`h-6 bg-gray-100`} />
+              </View>
             </View>
+            <Text style={tw`text-lg font-semibold mt-2`}>
+              Identification Card
+            </Text>
           </View>
-          <Text style={tw`text-lg font-semibold mt-2`}>
-            Identification Card
-          </Text>
-        </View>
+        </TouchableOpacity>
 
         <TouchableOpacity onPress={handleOpenDrivingLicense}>
           <View style={tw`bg-white rounded-md mx-4 my-4 p-4`}>

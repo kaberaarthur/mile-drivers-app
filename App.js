@@ -21,6 +21,7 @@ import AddVehicleScreen from "./screens/AddVehicleScreen";
 import DocumentManagementScreen from "./screens/DocumentManagementScreen";
 import DrivingLicenseScreen from "./screens/DrivingLicenseScreen";
 import InsuranceStickerScreen from "./screens/InsuranceStickerScreen";
+import IDCardScreen from "./screens/IDCardScreen";
 
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import "react-native-gesture-handler";
@@ -139,6 +140,13 @@ export default function App() {
               <Stack.Screen
                 name="InsuranceStickerScreen"
                 component={InsuranceStickerScreen}
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="IDCardScreen"
+                component={IDCardScreen}
                 options={{
                   headerShown: false,
                 }}
