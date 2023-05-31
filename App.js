@@ -19,6 +19,7 @@ import VehicleManagementScreen from "./screens/VehicleManagementScreen";
 import AddVehicleScreen from "./screens/AddVehicleScreen";
 
 import DocumentManagementScreen from "./screens/DocumentManagementScreen";
+import DrivingLicenseScreen from "./screens/DrivingLicenseScreen";
 
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import "react-native-gesture-handler";
@@ -123,6 +124,13 @@ export default function App() {
               <Stack.Screen
                 name="DocumentManagementScreen"
                 component={DocumentManagementScreen}
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="DrivingLicenseScreen"
+                component={DrivingLicenseScreen}
                 options={{
                   headerShown: false,
                 }}
