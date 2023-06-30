@@ -15,6 +15,10 @@ const OneRequestScreen = ({ route }) => {
   const navigation = useNavigation();
   const { ride } = route.params;
 
+  const goToPickUpScreen = () => {
+    navigation.navigate("PickUpScreen");
+  };
+
   return (
     <SafeAreaView style={tw`pt-10 px-6 flex-1`}>
       <View style={tw`flex-row items-center justify-between mb-5`}>
@@ -115,7 +119,10 @@ const OneRequestScreen = ({ route }) => {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={tw`bg-yellow-500 rounded-sm p-2`}>
+      <TouchableOpacity
+        style={tw`bg-yellow-500 rounded-sm p-2`}
+        onPress={goToPickUpScreen}
+      >
         <Text style={tw`text-center text-black font-bold text-lg`}>
           GO TO PICK UP
         </Text>

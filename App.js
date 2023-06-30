@@ -11,6 +11,7 @@ import MenuScreen from "./screens/MenuScreen";
 import RequestsScreen from "./screens/RequestsScreen";
 import OneRequestScreen from "./screens/OneRequestScreen";
 import ChatScreen from "./screens/ChatScreen";
+import PickUpScreen from "./screens/PickUpScreen";
 
 import HistoryScreen from "./screens/HistoryScreen";
 import NotificationScreen from "./screens/NotificationScreen";
@@ -88,6 +89,13 @@ export default function App() {
               <Stack.Screen
                 name="ChatScreen"
                 component={ChatScreen}
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="PickUpScreen"
+                component={PickUpScreen}
                 options={{
                   headerShown: false,
                 }}
