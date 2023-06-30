@@ -10,12 +10,29 @@ import {
 import { Icon } from "react-native-elements";
 import tw from "tailwind-react-native-classnames";
 import { useNavigation } from "@react-navigation/native";
+import { useDispatch } from "react-redux";
+import { setCurrentRide } from "../slices/currentRideSlice"; // Update this path based on where your currentRideSlice is located
 
 const OneRequestScreen = ({ route }) => {
   const navigation = useNavigation();
   const { ride } = route.params;
+  const dispatch = useDispatch();
 
   const goToPickUpScreen = () => {
+    dispatch(
+      setCurrentRide({
+        riderProfilePicture: ride.riderAvatar,
+        riderName: ride.riderName,
+        amountOfTheRide: ride.tripFare.amount,
+        pickupPoint: ride.pickup,
+        dropOffPoint: ride.dropoff,
+        tripFare: {
+          amount: ride.tripFare.amount,
+          discount: ride.tripFare.discount,
+          totalDue: ride.tripFare.totalAmount,
+        },
+      })
+    );
     navigation.navigate("PickUpScreen");
   };
 
@@ -65,7 +82,6 @@ const OneRequestScreen = ({ route }) => {
           <Text style={tw`text-sm`}>
             Discount: Kshs {ride.tripFare.discount}
           </Text>
-
           <Text style={tw`text-base text-right`}>
             Total Amount: Kshs {ride.tripFare.totalAmount}
           </Text>

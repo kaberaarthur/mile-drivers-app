@@ -11,6 +11,7 @@ import MapView from "react-native-maps";
 import { Marker } from "react-native-maps";
 import tw from "tailwind-react-native-classnames";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigation } from "@react-navigation/native";
 
 import {
   selectDestination,
@@ -27,6 +28,7 @@ const markerImage = require("../assets/taxi-marker.png");
 const GOOGLE_MAPS_APIKEY = "AIzaSyD0kPJKSOU4qtXrvddyAZFHeXQY2LMrz_M";
 
 const PickUpScreen = () => {
+  const navigation = useNavigation();
   const origin = {
     description: "TRM - Thika Road Mall, Nairobi, Kenya",
     location: { lat: -1.2195761, lng: 36.88842440000001 },
@@ -37,6 +39,9 @@ const PickUpScreen = () => {
   };
   const mapRef = useRef(null);
   const dispatch = useDispatch();
+
+  // Use the useSelector hook to select the data from the currentRideSlice
+  const currentRideData = useSelector((state) => state.currentRide);
 
   useEffect(() => {
     if (!origin || !destination) return;
@@ -139,6 +144,9 @@ const PickUpScreen = () => {
             style={tw`p-4 bg-yellow-500 justify-center items-center`}
             onPress={() => {
               console.log("Start Ride Button Pressed");
+              console.log("Current Ride Data:", currentRideData);
+
+              navigation.navigate("RideInProgressScreen");
             }}
           >
             <Text style={tw`text-gray-900 font-bold text-xl`}>START RIDE</Text>
