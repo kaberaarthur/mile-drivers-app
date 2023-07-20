@@ -3,6 +3,7 @@ import navReducer from "./slices/navSlice";
 import driverReducer from "./slices/driverSlice";
 import currentRideReducer from "./slices/currentRideSlice";
 import personReducer from "./slices/personSlice";
+import userReducer from "./slices/userSlice";
 
 export const store = configureStore({
   reducer: {
@@ -10,5 +11,6 @@ export const store = configureStore({
     driver: driverReducer,
     currentRide: currentRideReducer,
     person: personReducer,
+    user: userReducer,
   },
 });
