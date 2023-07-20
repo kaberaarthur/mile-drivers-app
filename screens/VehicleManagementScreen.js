@@ -10,6 +10,8 @@ import { Icon } from "react-native-elements";
 import tw from "tailwind-react-native-classnames";
 import { useNavigation } from "@react-navigation/native";
 
+import { db, auth } from "../firebaseConfig";
+
 const vehicles = [
   {
     id: 1,
@@ -17,27 +19,6 @@ const vehicles = [
     model: "Demio",
     licensePlate: "KDD 130D",
     approved: true,
-  },
-  {
-    id: 2,
-    brand: "Honda",
-    model: "Fit",
-    licensePlate: "KCM 354S",
-    approved: true,
-  },
-  {
-    id: 3,
-    brand: "Toyota",
-    model: "Prius",
-    licensePlate: "KBD 654Y",
-    approved: true,
-  },
-  {
-    id: 4,
-    brand: "Suzuki",
-    model: "Swift",
-    licensePlate: "KCH 789Z",
-    approved: false,
   },
 ];
 

@@ -11,6 +11,9 @@ import { Icon } from "react-native-elements";
 import tw from "tailwind-react-native-classnames";
 import { useNavigation } from "@react-navigation/native";
 
+import { db, auth } from "../firebaseConfig";
+import { ActivityIndicator } from "react-native";
+
 const AddVehicleScreen = () => {
   const navigation = useNavigation();
 
@@ -21,14 +24,39 @@ const AddVehicleScreen = () => {
   const [licensePlate, setLicensePlate] = useState("");
   const [color, setColor] = useState("");
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const [modalVisible, setModalVisible] = useState(false);
+
+  const generateCurrentDate = () => {
+    const currentDate = new Date();
+    return currentDate;
+  };
 
   // Function to handle creation of a new vehicle
   const handleCreateVehicle = () => {
-    const vehicleData = [brand, model, year, licensePlate, color];
-    console.log(vehicleData);
+    setIsLoading(true);
+    const vehicleData = {
+      brand: brand,
+      model: model,
+      year: year,
+      licensePlate: licensePlate,
+      color: color,
+      owner: auth.currentUser.uid, // Adding owner info if necessary
+      dateCreated: generateCurrentDate(),
+      activeCar: false,
+    };
 
-    setModalVisible(true);
+    db.collection("vehicles")
+      .add(vehicleData)
+      .then((docRef) => {
+        console.log("Vehicle document written with ID: ", docRef.id);
+
+        setModalVisible(true);
+      })
+      .catch((error) => {
+        console.error("Error adding vehicle document: ", error);
+      });
   };
 
   const handleClose = () => {
@@ -39,6 +67,7 @@ const AddVehicleScreen = () => {
     setLicensePlate("");
     setColor("");
 
+    setIsLoading(false);
     navigation.goBack();
   };
 
@@ -101,15 +130,19 @@ const AddVehicleScreen = () => {
           value={color}
         />
 
-        <TouchableOpacity
-          style={tw`bg-yellow-400 p-4 rounded-sm items-center ${
-            !isFormFilled && "opacity-50"
-          }`}
-          onPress={handleCreateVehicle}
-          disabled={!isFormFilled}
-        >
-          <Text style={tw`text-gray-900 text-lg font-bold`}>Submit</Text>
-        </TouchableOpacity>
+        {isLoading ? (
+          <ActivityIndicator size="large" color="#030813" />
+        ) : (
+          <TouchableOpacity
+            style={tw`bg-yellow-400 p-4 rounded-sm items-center ${
+              !isFormFilled && "opacity-50"
+            }`}
+            onPress={handleCreateVehicle}
+            disabled={!isFormFilled}
+          >
+            <Text style={tw`text-gray-900 text-lg font-bold`}>Submit</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       <Modal
