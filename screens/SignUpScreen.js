@@ -34,13 +34,13 @@ const SignUpScreen = () => {
 
     // Check if Phone Number is empty
     if (phoneNumber) {
-      db.collection("riders")
+      db.collection("drivers")
         .where("phone", "==", phoneNumber)
         .get()
         .then((querySnapshot) => {
           if (querySnapshot.empty) {
             // No existing document found, proceed with creating a new one
-            db.collection("riders")
+            db.collection("drivers")
               .doc()
               .set({
                 dateRegistered: getCurrentTimestamp(),
@@ -64,7 +64,7 @@ const SignUpScreen = () => {
           } else {
             // Existing document found, update the otpCode
             querySnapshot.forEach((doc) => {
-              db.collection("riders")
+              db.collection("drivers")
                 .doc(doc.id)
                 .update({
                   otpCode: expectedCode,

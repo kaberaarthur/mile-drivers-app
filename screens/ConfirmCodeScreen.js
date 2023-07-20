@@ -31,7 +31,7 @@ const ConfirmCodeScreen = ({ navigation, route }) => {
     console.log(phoneNumber);
     // Check if authID exists for the given phone number
     const personRef = db
-      .collection("riders")
+      .collection("drivers")
       .where("phone", "==", phoneNumber)
       .where("authID", "!=", ""); // Check for non-empty authID field
 
@@ -47,7 +47,7 @@ const ConfirmCodeScreen = ({ navigation, route }) => {
             setProfileDocuments(doc.data());
           });
         } else {
-          console.log("No Documents Found/");
+          console.log("No Documents Found in the Drivers Collection");
           setUpdateProfile(true);
         }
       })

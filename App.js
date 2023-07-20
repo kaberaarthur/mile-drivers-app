@@ -5,6 +5,7 @@ import { store } from "./store";
 
 import HomeScreen from "./screens/HomeScreen";
 import SignUpScreen from "./screens/SignUpScreen";
+import UpdateProfileScreen from "./screens/UpdateProfileScreen";
 import ConfirmCodeScreen from "./screens/ConfirmCodeScreen";
 import MenuScreen from "./screens/MenuScreen";
 
@@ -54,6 +55,13 @@ export default function App() {
               <Stack.Screen
                 name="SignUpScreen"
                 component={SignUpScreen}
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="UpdateProfileScreen"
+                component={UpdateProfileScreen}
                 options={{
                   headerShown: false,
                 }}
