@@ -13,12 +13,28 @@ import {
 } from "../slices/driverSlice.js";
 import { SafeAreaView, Text, View, TouchableOpacity } from "react-native";
 import tw from "tailwind-react-native-classnames";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Icon } from "react-native-elements";
 import { useNavigation } from "@react-navigation/native";
 
+import { db, auth } from "../firebaseConfig";
+
 const HomeScreen = () => {
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    const docRef = db.collection("lastPartnerCode").doc("sz9CX7al5MgsvGsvaRYM");
+    docRef
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          console.log("Last Number Data: ", doc.data());
+        }
+      })
+      .catch((error) => {
+        console.log("Error getting lastNumber document:", error);
+      });
+  });
 
   useEffect(() => {
     const driver = {
