@@ -6,6 +6,7 @@ import { store } from "./store";
 import HomeScreen from "./screens/HomeScreen";
 import SignUpScreen from "./screens/SignUpScreen";
 import UpdateProfileScreen from "./screens/UpdateProfileScreen";
+import EditProfileScreen from "./screens/EditProfileScreen";
 import ConfirmCodeScreen from "./screens/ConfirmCodeScreen";
 import MenuScreen from "./screens/MenuScreen";
 
@@ -62,6 +63,13 @@ export default function App() {
               <Stack.Screen
                 name="UpdateProfileScreen"
                 component={UpdateProfileScreen}
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="EditProfileScreen"
+                component={EditProfileScreen}
                 options={{
                   headerShown: false,
                 }}

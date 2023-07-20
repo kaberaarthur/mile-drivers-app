@@ -10,15 +10,61 @@ import {
 import { Icon } from "react-native-elements";
 import tw from "tailwind-react-native-classnames";
 import { useNavigation } from "@react-navigation/native";
+import { ActivityIndicator } from "react-native";
+
+import { useDispatch, useSelector } from "react-redux";
+import { selectUser, setUser } from "../slices/userSlice";
+import { selectPerson, setPerson } from "../slices/personSlice";
+
+import { db, auth } from "../firebaseConfig";
 
 const RequestCard = ({ request }) => {
   const firstName = request.riderName.split(" ")[0];
   const navigation = useNavigation();
 
+  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState(null);
+  const dispatch = useDispatch();
+  const person = useSelector(selectPerson);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setUser(user);
+      setLoading(false);
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (loading) {
+      // If still loading, don't do anything.
+      return;
+    }
+
+    if (!user) {
+      console.log("User is not logged in");
+
+      // Redirect to the SignUpScreen
+      navigation.navigate("SignUpScreen");
+    } else {
+      console.log("Current User: ", person);
+    }
+  }, [user, loading]);
+
+  if (loading) {
+    return null; // Or return a loading spinner.
+  }
+
   const handleAcceptRequest = () => {
     navigation.navigate("OneRequestScreen", { ride: request });
     console.log(request.rideID);
   };
+
+  function roundToNearestTen(num) {
+    return Math.round(num / 10) * 10;
+  }
 
   return (
     <View style={tw`bg-white rounded-sm p-4 mb-4 pb-2`}>
@@ -31,7 +77,9 @@ const RequestCard = ({ request }) => {
           <Text style={tw`text-lg font-bold pl-2`}>{firstName}</Text>
         </View>
         <View>
-          <Text style={tw`text-lg font-bold`}>Kshs {request.price}</Text>
+          <Text style={tw`text-lg font-bold`}>
+            Kshs {roundToNearestTen(request.price)}
+          </Text>
           <Text style={tw`text-sm text-gray-500`}>{request.distance} km</Text>
         </View>
       </View>

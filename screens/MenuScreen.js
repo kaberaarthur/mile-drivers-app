@@ -12,8 +12,15 @@ import { Icon } from "react-native-elements";
 import tw from "tailwind-react-native-classnames";
 import { useNavigation } from "@react-navigation/native";
 
+import { useDispatch, useSelector } from "react-redux";
+import { selectUser, setUser } from "../slices/userSlice";
+import { selectPerson, setPerson } from "../slices/personSlice";
+
 function MenuScreen() {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const person = useSelector(selectPerson);
+
   const userData = {
     name: "John Doe",
     rating: "4.7",
@@ -22,11 +29,10 @@ function MenuScreen() {
   const handleEditProfile = () => {
     // This function will be used to handle profile editing
     console.log("Edit Profile Clicked");
+    navigation.navigate("EditProfileScreen");
   };
 
   const menuItems = [
-    { name: "Sign Up", icon: "person-add-outline", screen: "SignUpScreen" },
-    { name: "Verify Phone", icon: "call-outline", screen: "VerifyPhoneScreen" },
     { name: "History", icon: "albums-outline", screen: "HistoryScreen" },
     {
       name: "Requests",
@@ -76,7 +82,7 @@ function MenuScreen() {
           source={{ uri: "https://via.placeholder.com/100" }} // Replace with actual profile picture URL
         />
         <View style={tw`ml-4 pl-8`}>
-          <Text style={tw`text-xl font-bold mb-2`}>{userData.name}</Text>
+          <Text style={tw`text-xl font-bold mb-2`}>{person.name}</Text>
           <TouchableOpacity onPress={handleEditProfile}>
             <Text style={[tw`text-lg mb-2`, { color: "#F5B800" }]}>
               Edit Profile
@@ -84,7 +90,7 @@ function MenuScreen() {
           </TouchableOpacity>
           <View style={tw`flex-row items-center`}>
             <Icon type="ionicon" name="star-outline" color="gold" size={24} />
-            <Text style={tw`text-lg ml-2 mb-2`}>{userData.rating}</Text>
+            <Text style={tw`text-lg ml-2 mb-2`}>{person.rating}</Text>
           </View>
         </View>
       </View>
