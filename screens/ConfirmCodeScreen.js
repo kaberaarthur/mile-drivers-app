@@ -10,10 +10,18 @@ import { Icon } from "react-native-elements";
 import tw from "tailwind-react-native-classnames";
 
 import { db, auth } from "../firebaseConfig";
+import firebase from "firebase/compat/app";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+} from "firebase/auth";
 
 import { useDispatch } from "react-redux";
 import { setUser } from "../slices/userSlice";
 import { setPerson } from "../slices/personSlice";
+
+import { useNavigation } from "@react-navigation/native";
 
 const ConfirmCodeScreen = ({ navigation, route }) => {
   const dispatch = useDispatch();
@@ -21,92 +29,100 @@ const ConfirmCodeScreen = ({ navigation, route }) => {
   const { phoneNumber, expectedCode } = route.params;
   const [code, setCode] = useState("");
   const [isValidCode, setIsValidCode] = useState(true);
-  const [profileDocuments, setProfileDocuments] = useState("");
-  const [profileID, setProfileID] = useState("");
+  const [profile, setProfile] = useState([]);
   const [updateProfile, setUpdateProfile] = useState("");
 
+  const [errorMessage, setErrorMessage] = useState("");
+
+  // Check Whether the Document for Whom OTP is being Confirmed Exists,
+  // Set Profile Data
+
   const handleSignIn = () => {
-    const authIDSArray = [];
+    // First check if OTP is Correct
+    if (expectedCode == code) {
+      console.log("The Code is Correct");
 
-    console.log(phoneNumber);
-    // Check if authID exists for the given phone number
-    const personRef = db
-      .collection("drivers")
-      .where("phone", "==", phoneNumber)
-      .where("authID", "!=", ""); // Check for non-empty authID field
+      // Check if authID exists for the given phone number
+      const personRef = db
+        .collection("drivers")
+        .where("phone", "==", phoneNumber);
 
-    personRef
-      .get()
-      .then((querySnapshot) => {
-        if (!querySnapshot.empty) {
-          querySnapshot.forEach((doc) => {
-            // doc.data() is never undefined for query doc snapshots
-            console.log(doc.id, " => ", doc.data());
+      personRef
+        .get()
+        .then((querySnapshot) => {
+          if (!querySnapshot.empty) {
+            // This means the User Profile Exists
 
-            setProfileID(doc.id);
-            setProfileDocuments(doc.data());
-          });
-        } else {
-          console.log("No Documents Found in the Drivers Collection");
-          setUpdateProfile(true);
-        }
-      })
-      .catch((error) => {
-        console.error("Error querying documents:", error);
-      });
-  };
+            // Get the first document's data
+            const firstDocument = querySnapshot.docs[0];
+            const firstDocumentData = firstDocument.data();
 
-  useEffect(() => {
-    // Generate the Password
-    if (profileID && profileDocuments) {
-      console.log("Profile ID: " + profileID);
-      console.log("Profile Documents: " + profileDocuments["email"]);
+            // Add the document ID as a field in the data object
+            firstDocumentData.id = firstDocument.id;
 
-      // Sign In With Email and Password
-      auth
-        .signInWithEmailAndPassword(
-          profileDocuments["email"],
-          profileDocuments["password"]
-        )
-        .then((userCredential) => {
-          // Signed in
-          var user = userCredential.user;
-          console.log("USER ID: " + user.uid);
+            console.log("User Data: ", firstDocumentData);
 
-          // Dispatch to Person Store
-          dispatch(setPerson(profileDocuments));
+            // Set the profile state to the first document's data
+            setProfile(firstDocumentData);
+            setPerson(firstDocumentData);
 
-          // Dispatch to User Store
-          dispatch(setUser(profileDocuments));
+            // Sign In With Email and Password
+            auth
+              .signInWithEmailAndPassword(
+                firstDocumentData["email"],
+                firstDocumentData["password"]
+              )
+              .then((userCredential) => {
+                // Signed in
+                var user = userCredential.user;
+                console.log("USER ID: " + user.uid);
 
-          // Set SignedIn Status as True
-          // dispatch(setUser({ signedIn: true }));
+                // Dispatch to Person Store
+                //dispatch(setPerson(firstDocumentData));
 
-          navigation.navigate("HomeScreen");
+                // Dispatch to User Store
+                //dispatch(setUser(firstDocumentData));
+
+                // Set SignedIn Status as True
+                // dispatch(setUser({ signedIn: true }));
+
+                // navigation.navigate("HomeScreen");
+              })
+              .catch((error) => {
+                var errorCode = error.code;
+                var errorMessage = error.message;
+
+                console.log("Error: " + errorMessage);
+              });
+
+            // Navigate to the Available Rides List
+            navigation.navigate("HomeScreen", {
+              driverData: firstDocumentData,
+            });
+          } else {
+            // This means the User Profile DOES NOT Exists
+
+            console.log("No Documents Found in the Drivers Collection");
+            setErrorMessage("No User Exists for that Phone Number");
+
+            // Send the User to Update their Profile Info
+            navigation.navigate("UpdateProfileScreen", {
+              phoneNumber: phoneNumber,
+            });
+          }
         })
         .catch((error) => {
-          var errorCode = error.code;
-          var errorMessage = error.message;
-
-          console.log("Error Occurred Signing In User");
+          console.error("Error querying documents:", error);
+          setErrorMessage("Error querying documents:", error);
         });
+    } else {
+      setErrorMessage("The Code is Incorrect");
     }
-  }, [profileID, profileDocuments]);
-
-  useEffect(() => {
-    // Generate the Password
-    if (updateProfile) {
-      console.log("Profile to Get Updated");
-
-      navigation.navigate("UpdateProfileScreen", {
-        phoneNumber: phoneNumber,
-        expectedCode: expectedCode,
-      });
-    }
-  }, [updateProfile]);
+  };
 
   const handleResendCode = () => {
     // Handle resend code logic
+    console.log("Resend User Code");
   };
 
   return (

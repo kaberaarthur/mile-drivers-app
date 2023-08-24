@@ -26,10 +26,11 @@ const SignUpScreen = () => {
 
   const [phoneNumber, setPhoneNumber] = useState("");
 
+  const sendOTP = () => {
+    console.log("Sending OTP Now");
+  };
+
   const handleSignIn = () => {
-    function getCurrentTimestamp() {
-      return Date.now();
-    }
     const expectedCode = generateRandomCode();
 
     // Check if Phone Number is empty
@@ -43,20 +44,22 @@ const SignUpScreen = () => {
             db.collection("drivers")
               .doc()
               .set({
-                dateRegistered: getCurrentTimestamp(),
+                dateRegistered: firebase.firestore.FieldValue.serverTimestamp(),
                 email: "",
                 name: "",
                 language: "en",
                 phone: phoneNumber,
                 authID: "",
-                otpDate: getCurrentTimestamp(),
+                otpDate: firebase.firestore.FieldValue.serverTimestamp(),
                 otpCode: expectedCode,
                 password: "",
               })
               .then(() => {
                 console.log("Document successfully written!");
+                console.log("OTP: " + expectedCode);
 
-                // Write the Code to send the OTP Here
+                // Send the OTP Code
+                sendOTP();
               })
               .catch((error) => {
                 console.error("Error writing document: ", error);
@@ -71,8 +74,10 @@ const SignUpScreen = () => {
                 })
                 .then(() => {
                   console.log("Document successfully updated!");
+                  console.log("OTP: " + expectedCode);
 
                   // Write the Code to send the OTP Here
+                  sendOTP();
                 })
                 .catch((error) => {
                   console.error("Error updating document: ", error);
@@ -90,45 +95,6 @@ const SignUpScreen = () => {
         expectedCode: expectedCode,
       });
     }
-  };
-
-  const handleSignInWithGoogle = () => {
-    // console.log("Sign Up Initiated");
-
-    const email = "+254790485731";
-    const password = "N0p4$$w0rd*";
-
-    auth
-      .createUserWithEmailAndPassword(email, password)
-      .then((userCredential) => {
-        // Signed in
-        var user = userCredential.user;
-        // ...
-        console.log("User: " + user);
-      })
-      .catch((error) => {
-        var errorCode = error.code;
-        var errorMessage = error.message;
-        // ..
-
-        console.log("Error: " + errorMessage);
-      });
-  };
-
-  // Currently not in Use
-  const handleSignInWithFacebook = () => {
-    // Handle sign in with Facebook logic
-    db.collection("drivers")
-      .get()
-      .then((querySnapshot) => {
-        querySnapshot.forEach((doc) => {
-          // doc.data() is never undefined for query doc snapshots
-          console.log(doc.id, " => ", doc.data());
-        });
-      })
-      .catch((error) => {
-        console.log("Error getting documents: ", error);
-      });
   };
 
   const handleTermsAndConditions = () => {
