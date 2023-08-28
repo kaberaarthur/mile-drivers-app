@@ -12,6 +12,7 @@ import tw from "tailwind-react-native-classnames";
 import { useNavigation } from "@react-navigation/native";
 
 import { db, auth } from "../firebaseConfig";
+import firebase from "firebase/compat/app";
 import { ActivityIndicator } from "react-native";
 
 const AddVehicleScreen = () => {
@@ -28,11 +29,6 @@ const AddVehicleScreen = () => {
 
   const [modalVisible, setModalVisible] = useState(false);
 
-  const generateCurrentDate = () => {
-    const currentDate = new Date();
-    return currentDate;
-  };
-
   // Function to handle creation of a new vehicle
   const handleCreateVehicle = () => {
     setIsLoading(true);
@@ -43,7 +39,7 @@ const AddVehicleScreen = () => {
       licensePlate: licensePlate,
       color: color,
       owner: auth.currentUser.uid, // Adding owner info if necessary
-      dateCreated: generateCurrentDate(),
+      dateCreated: firebase.firestore.FieldValue.serverTimestamp(),
       activeCar: false,
     };
 

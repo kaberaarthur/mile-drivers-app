@@ -38,20 +38,11 @@ const RequestCard = ({ request }) => {
   }, []);
 
   useEffect(() => {
-    if (loading) {
-      // If still loading, don't do anything.
-      return;
-    }
-
-    if (!user) {
-      console.log("User is not logged in");
-
-      // Redirect to the SignUpScreen
+    if (!loading && !user) {
+      // Redirect to SignUpScreen when no user is logged in
       navigation.navigate("SignUpScreen");
-    } else {
-      console.log("Current User: ", person);
     }
-  }, [user, loading]);
+  }, [loading, user, navigation]);
 
   if (loading) {
     return null; // Or return a loading spinner.

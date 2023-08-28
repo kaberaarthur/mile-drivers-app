@@ -13,6 +13,9 @@ import { useNavigation } from "@react-navigation/native";
 import { db, auth } from "../firebaseConfig";
 import { ActivityIndicator } from "react-native";
 
+import { useDispatch, useSelector } from "react-redux";
+import { selectPerson } from "../slices/personSlice";
+
 const vehiclesFormer = [
   {
     id: 1,

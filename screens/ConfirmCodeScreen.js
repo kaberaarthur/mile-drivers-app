@@ -17,14 +17,15 @@ import {
   GoogleAuthProvider,
 } from "firebase/auth";
 
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "../slices/userSlice";
-import { setPerson } from "../slices/personSlice";
+import { setPerson, selectPerson } from "../slices/personSlice";
 
 import { useNavigation } from "@react-navigation/native";
 
 const ConfirmCodeScreen = ({ navigation, route }) => {
   const dispatch = useDispatch();
+  const person = useSelector(selectPerson);
 
   const { phoneNumber, expectedCode } = route.params;
   const [code, setCode] = useState("");
@@ -33,6 +34,22 @@ const ConfirmCodeScreen = ({ navigation, route }) => {
   const [updateProfile, setUpdateProfile] = useState("");
 
   const [errorMessage, setErrorMessage] = useState("");
+
+  // Format Date Date and Time
+  function formatTimestamp(timestamp) {
+    const date = new Date(timestamp);
+
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1; // Month is 0-indexed
+    const day = date.getDate();
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const seconds = date.getSeconds();
+
+    const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
+    return formattedDateTime;
+  }
 
   // Check Whether the Document for Whom OTP is being Confirmed Exists,
   // Set Profile Data
@@ -77,16 +94,26 @@ const ConfirmCodeScreen = ({ navigation, route }) => {
                 var user = userCredential.user;
                 console.log("USER ID: " + user.uid);
 
+                console.log(
+                  "Date Registered: " +
+                    formatTimestamp(firstDocumentData["dateRegistered"])
+                );
+
                 // Dispatch to Person Store
-                //dispatch(setPerson(firstDocumentData));
+                // Convert non-serializable values to serializable values
 
-                // Dispatch to User Store
-                //dispatch(setUser(firstDocumentData));
+                const serializableData = {
+                  ...firstDocumentData,
+                  dateRegistered: formatTimestamp(
+                    firstDocumentData["dateRegistered"]
+                  ), // Convert Firestore Timestamp to milliseconds
+                  otpDate: formatTimestamp(firstDocumentData["otpDate"]), // Convert Firestore Timestamp to milliseconds
+                };
+                dispatch(setPerson(serializableData));
 
-                // Set SignedIn Status as True
-                // dispatch(setUser({ signedIn: true }));
+                console.log("The Person: ", person);
 
-                // navigation.navigate("HomeScreen");
+                navigation.navigate("HomeScreen");
               })
               .catch((error) => {
                 var errorCode = error.code;
@@ -94,11 +121,6 @@ const ConfirmCodeScreen = ({ navigation, route }) => {
 
                 console.log("Error: " + errorMessage);
               });
-
-            // Navigate to the Available Rides List
-            navigation.navigate("HomeScreen", {
-              driverData: firstDocumentData,
-            });
           } else {
             // This means the User Profile DOES NOT Exists
 
