@@ -13,17 +13,29 @@ import tw from "tailwind-react-native-classnames";
 import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 
+import { db, auth } from "../firebaseConfig";
+import firebase from "firebase/compat/app";
+import "firebase/compat/storage";
+
+import { ActivityIndicator } from "react-native";
+
 const IDCardScreen = () => {
   const navigation = useNavigation();
   const [photo, setPhoto] = useState("");
   const [idNumber, setIdNumber] = useState("");
+  const [iDFileName, setIDFileName] = useState("");
   const [birthday, setBirthday] = useState("");
+  const [downloadURL, setDownloadURL] = useState("");
+  const [imageError, setImageError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
   const [isModalVisible, setModalVisible] = useState(false);
 
   const handleGoBack = () => {
     navigation.goBack();
   };
 
+  /*
   const handlePhotoUpload = async () => {
     const permissionResult =
       await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -39,12 +51,104 @@ const IDCardScreen = () => {
       setPhoto(pickerResult.assets[0].uri);
     }
   };
+  */
 
+  const handlePhotoUpload = async () => {
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (permissionResult.granted === false) {
+      console.log("Permission to access camera roll is required!");
+      return;
+    }
+
+    const pickerResult = await ImagePicker.launchImageLibraryAsync();
+
+    if (!pickerResult.canceled) {
+      const imageUri = pickerResult.assets[0].uri;
+      const userUid = auth.currentUser.uid;
+      const timestamp = new Date().getTime();
+
+      // Extract file extension from the image's URI
+      const fileExtension = imageUri.split(".").pop();
+      const filename = `${userUid}-${timestamp}-nid.${fileExtension}`;
+
+      setPhoto(pickerResult.assets[0].uri);
+      setIDFileName(filename);
+      console.log("File Name: " + filename);
+
+      const response = await fetch(imageUri);
+      const blob = await response.blob();
+
+      const storageRef = firebase
+        .storage()
+        .ref()
+        .child(`documents/national-ids/${filename}`);
+
+      try {
+        await storageRef.put(blob);
+        console.log("Image uploaded successfully");
+
+        // Get the download URL of the uploaded file
+        const downloadURL = await storageRef.getDownloadURL();
+        console.log("Download URL:", downloadURL);
+
+        // Now you can use the downloadURL as needed, for example, store it in a state
+        setDownloadURL(downloadURL);
+      } catch (error) {
+        console.error("Error uploading image: ", error);
+        setImageError(error.message);
+      }
+    }
+  };
+
+  /*
   const handleSubmit = () => {
     console.log("Selected photo:", photo);
     console.log("ID Number:", idNumber);
     console.log("Birthday:", birthday);
     setModalVisible(true);
+  };
+  */
+
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    console.log("Selected photo:", photo);
+    console.log("ID Number:", idNumber);
+    console.log("Birthday: ", birthday);
+    console.log("License Download URL:", downloadURL);
+
+    if (!downloadURL) {
+      setImageError("You have not uploaded your license card");
+      return;
+    }
+
+    const userUid = auth.currentUser.uid;
+
+    try {
+      const docRef = db.collection("nationalIDS").doc(userUid);
+
+      // Use server timestamp for dateUploaded
+      const timestamp = firebase.firestore.FieldValue.serverTimestamp();
+
+      // Create or update the document
+      await docRef.set(
+        {
+          approved: false,
+          dateUploaded: timestamp,
+          downloadURL: downloadURL,
+          IDNumber: idNumber,
+          birthday: birthday,
+        },
+        { merge: true } // This will merge new values with existing ones if the document already exists
+      );
+
+      console.log("Document created/updated successfully");
+      setIsLoading(false);
+      setModalVisible(true);
+    } catch (error) {
+      console.error("Error creating/updating document: ", error);
+    }
   };
 
   const handleModalOk = () => {
@@ -125,13 +229,23 @@ const IDCardScreen = () => {
               />
             </View>
           </View>
+          <View style={tw`mt-4`}>
+            <Text style={tw`text-red-600 text-sm font-semibold`}>
+              {imageError}
+            </Text>
+          </View>
         </View>
 
         <TouchableOpacity
           onPress={handleSubmit}
           style={tw`bg-yellow-500 mx-4 my-4 p-4 rounded-md items-center`}
+          disabled={isLoading}
         >
-          <Text style={tw`text-gray-900 text-lg font-semibold`}>Submit</Text>
+          {isLoading ? (
+            <ActivityIndicator size="large" color="#030813" />
+          ) : (
+            <Text style={tw`text-gray-900 text-lg font-semibold`}>Submit</Text>
+          )}
         </TouchableOpacity>
       </View>
 

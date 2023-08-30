@@ -84,7 +84,7 @@ const DrivingLicenseScreen = () => {
       const storageRef = firebase
         .storage()
         .ref()
-        .child(`documents/${filename}`);
+        .child(`documents/license/${filename}`);
 
       try {
         await storageRef.put(blob);
