@@ -1,4 +1,10 @@
-import { StyleSheet, Text, SafeAreaView, View } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  SafeAreaView,
+  View,
+  TouchableOpacity,
+} from "react-native";
 import { Icon } from "react-native-elements";
 import React, { useEffect, useState } from "react";
 import { useRoute } from "@react-navigation/native";
@@ -34,6 +40,14 @@ const AddVehicleDocumentsScreen = () => {
     });
   }, [vehicleID]);
 
+  const handleAddLogBook = () => {
+    console.log("Logbook added!");
+  };
+
+  const handleAddPhotos = () => {
+    console.log("Add Photos Now!");
+  };
+
   return (
     <SafeAreaView style={tw`flex-1 bg-gray-100`}>
       <View
@@ -49,16 +63,51 @@ const AddVehicleDocumentsScreen = () => {
         <Text style={tw`text-lg font-bold`}>Vehicle Management</Text>
         <View style={tw`w-6`} />
       </View>
-      <Text style={tw`pt-2 px-2 font-semibold`}>
-        Vehicle:{" "}
-        {vehicleData["brand"] +
-          " " +
-          vehicleData["model"] +
-          " " +
-          vehicleData["year"] +
-          " " +
-          vehicleData["licensePlate"]}
-      </Text>
+      {vehicleError ? (
+        <Text style={tw`pt-2 px-2 text-red-600 font-semibold`}>
+          Error: {vehicleError}
+        </Text>
+      ) : (
+        <>
+          {vehicleData && ( // Check if vehicleData is not null
+            <Text style={tw`pt-2 px-2 font-semibold`}>
+              Vehicle:{" "}
+              {vehicleData["brand"] +
+                " " +
+                vehicleData["model"] +
+                " " +
+                vehicleData["year"] +
+                " " +
+                vehicleData["licensePlate"]}
+            </Text>
+          )}
+        </>
+      )}
+      <View style={tw`px-6 pt-4`}>
+        <TouchableOpacity
+          style={tw`bg-yellow-500 p-4 rounded-sm items-center`}
+          onPress={handleAddPhotos}
+        >
+          <Text style={tw` px-2 font-bold text-lg rounded-sm`}>Add Photos</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={tw`px-6 pt-4`}>
+        <TouchableOpacity
+          style={tw`bg-yellow-500 p-4 rounded-sm items-center`}
+          onPress={handleAddLogBook}
+        >
+          <Text style={tw` px-2 font-bold text-lg rounded-sm`}>
+            Add Log Book
+          </Text>
+        </TouchableOpacity>
+      </View>
+      <View style={tw`px-6 pt-4`}>
+        <Text style={tw` px-2 font-bold text-lg rounded-sm`}>
+          Make sure all uploads are clear and readable. Ensure the Vehicle
+          number plate is clear and readable on atleast one of your photos.
+        </Text>
+      </View>
     </SafeAreaView>
   );
 };

@@ -101,7 +101,7 @@ const VehicleManagementScreen = () => {
 
                 <View style={tw`flex-1 pl-2`}>
                   <Text style={tw`text-lg font-bold`}>
-                    {brand} {model} {id}
+                    {brand} {model}
                   </Text>
                   <Text style={tw`text-sm`}>{licensePlate}</Text>
                 </View>
