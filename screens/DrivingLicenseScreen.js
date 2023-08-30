@@ -17,10 +17,7 @@ import { db, auth } from "../firebaseConfig";
 import firebase from "firebase/compat/app";
 import "firebase/compat/storage";
 
-import {
-  requestMediaLibraryPermissionsAsync,
-  launchImageLibraryAsync,
-} from "expo-image-picker";
+import { ActivityIndicator } from "react-native";
 
 const DrivingLicenseScreen = () => {
   const navigation = useNavigation();
@@ -32,6 +29,7 @@ const DrivingLicenseScreen = () => {
   const [isModalVisible, setModalVisible] = useState(false);
 
   const [imageError, setImageError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleGoBack = () => {
     navigation.goBack();
@@ -117,6 +115,7 @@ const DrivingLicenseScreen = () => {
   */
 
   const handleSubmit = async () => {
+    setIsLoading(true);
     console.log("Selected photo:", photo);
     console.log("License Number:", licenseNumber);
     console.log("Expiration Date:", expirationDate);
@@ -148,6 +147,7 @@ const DrivingLicenseScreen = () => {
       );
 
       console.log("Document created/updated successfully");
+      setIsLoading(false);
       setModalVisible(true);
     } catch (error) {
       console.error("Error creating/updating document: ", error);
@@ -243,8 +243,13 @@ const DrivingLicenseScreen = () => {
         <TouchableOpacity
           onPress={handleSubmit}
           style={tw`bg-yellow-500 mx-4 my-4 p-4 rounded-md items-center`}
+          disabled={isLoading}
         >
-          <Text style={tw`text-gray-900 text-lg font-semibold`}>Submit</Text>
+          {isLoading ? (
+            <ActivityIndicator size="large" color="#030813" />
+          ) : (
+            <Text style={tw`text-gray-900 text-lg font-semibold`}>Submit</Text>
+          )}
         </TouchableOpacity>
       </View>
 
