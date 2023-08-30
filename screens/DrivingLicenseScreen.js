@@ -100,10 +100,12 @@ const DrivingLicenseScreen = () => {
         setDownloadURL(downloadURL);
       } catch (error) {
         console.error("Error uploading image: ", error);
+        setImageError(error.message);
       }
     }
   };
 
+  /*
   const handleSubmit = () => {
     console.log("Selected photo:", photo);
     console.log("License Number:", licenseNumber);
@@ -111,6 +113,45 @@ const DrivingLicenseScreen = () => {
     console.log("License Download URL:", downloadURL);
 
     setModalVisible(true);
+  };
+  */
+
+  const handleSubmit = async () => {
+    console.log("Selected photo:", photo);
+    console.log("License Number:", licenseNumber);
+    console.log("Expiration Date:", expirationDate);
+    console.log("License Download URL:", downloadURL);
+
+    if (!downloadURL) {
+      setImageError("You have not uploaded your license card");
+      return;
+    }
+
+    const userUid = auth.currentUser.uid;
+
+    try {
+      const docRef = db.collection("drivingLicense").doc(userUid);
+
+      // Use server timestamp for dateUploaded
+      const timestamp = firebase.firestore.FieldValue.serverTimestamp();
+
+      // Create or update the document
+      await docRef.set(
+        {
+          approved: false,
+          dateUploaded: timestamp,
+          downloadURL: downloadURL,
+          licenseNumber: licenseNumber,
+          expirationDate: expirationDate,
+        },
+        { merge: true } // This will merge new values with existing ones if the document already exists
+      );
+
+      console.log("Document created/updated successfully");
+      setModalVisible(true);
+    } catch (error) {
+      console.error("Error creating/updating document: ", error);
+    }
   };
 
   const handleModalOk = () => {
@@ -191,6 +232,11 @@ const DrivingLicenseScreen = () => {
               />
             </View>
             {/* Implement the calendar functionality here */}
+          </View>
+          <View style={tw`mt-4`}>
+            <Text style={tw`text-red-600 text-sm font-semibold`}>
+              {imageError}
+            </Text>
           </View>
         </View>
 
