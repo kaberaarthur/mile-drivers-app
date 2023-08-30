@@ -13,16 +13,31 @@ import tw from "tailwind-react-native-classnames";
 import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 
+import { db, auth } from "../firebaseConfig";
+import firebase from "firebase/compat/app";
+import "firebase/compat/storage";
+
+import {
+  requestMediaLibraryPermissionsAsync,
+  launchImageLibraryAsync,
+} from "expo-image-picker";
+
 const DrivingLicenseScreen = () => {
   const navigation = useNavigation();
   const [photo, setPhoto] = useState("");
+  const [licenseFileName, setLicenseFileName] = useState("");
+  const [downloadURL, setDownloadURL] = useState("");
   const [licenseNumber, setLicenseNumber] = useState("");
   const [expirationDate, setExpirationDate] = useState("");
   const [isModalVisible, setModalVisible] = useState(false);
 
+  const [imageError, setImageError] = useState("");
+
   const handleGoBack = () => {
     navigation.goBack();
   };
+
+  /*
 
   const handlePhotoUpload = async () => {
     const permissionResult =
@@ -39,11 +54,62 @@ const DrivingLicenseScreen = () => {
       setPhoto(pickerResult.assets[0].uri);
     }
   };
+  */
+
+  const handlePhotoUpload = async () => {
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (permissionResult.granted === false) {
+      console.log("Permission to access camera roll is required!");
+      return;
+    }
+
+    const pickerResult = await ImagePicker.launchImageLibraryAsync();
+
+    if (!pickerResult.canceled) {
+      const imageUri = pickerResult.assets[0].uri;
+      const userUid = auth.currentUser.uid;
+      const timestamp = new Date().getTime();
+
+      // Extract file extension from the image's URI
+      const fileExtension = imageUri.split(".").pop();
+      const filename = `${userUid}-${timestamp}-lc.${fileExtension}`;
+
+      setPhoto(pickerResult.assets[0].uri);
+      setLicenseFileName(filename);
+      console.log("File Name: " + filename);
+
+      const response = await fetch(imageUri);
+      const blob = await response.blob();
+
+      const storageRef = firebase
+        .storage()
+        .ref()
+        .child(`documents/${filename}`);
+
+      try {
+        await storageRef.put(blob);
+        console.log("Image uploaded successfully");
+
+        // Get the download URL of the uploaded file
+        const downloadURL = await storageRef.getDownloadURL();
+        console.log("Download URL:", downloadURL);
+
+        // Now you can use the downloadURL as needed, for example, store it in a state
+        setDownloadURL(downloadURL);
+      } catch (error) {
+        console.error("Error uploading image: ", error);
+      }
+    }
+  };
 
   const handleSubmit = () => {
     console.log("Selected photo:", photo);
     console.log("License Number:", licenseNumber);
     console.log("Expiration Date:", expirationDate);
+    console.log("License Download URL:", downloadURL);
+
     setModalVisible(true);
   };
 
