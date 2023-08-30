@@ -79,37 +79,47 @@ const VehicleManagementScreen = () => {
       ) : (
         <ScrollView>
           {vehicles.map(({ id, brand, model, licensePlate, approved }) => (
-            <View
-              key={id}
-              style={tw`bg-white rounded-sm mx-4 mt-2 p-4 flex-row items-center`}
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate("AddVehicleDocumentsScreen", {
+                  vehicleID: id,
+                })
+              }
             >
-              <View style={tw`p-4 rounded-full bg-yellow-500 mr-2`}>
-                <Icon
-                  type="ionicon"
-                  name="car-outline"
-                  color="black"
-                  size={24}
-                />
-              </View>
+              <View
+                key={id}
+                style={tw`bg-white rounded-sm mx-4 mt-2 p-4 flex-row items-center`}
+              >
+                <View style={tw`p-4 rounded-full bg-yellow-500 mr-2`}>
+                  <Icon
+                    type="ionicon"
+                    name="car-outline"
+                    color="black"
+                    size={24}
+                  />
+                </View>
 
-              <View style={tw`flex-1 pl-2`}>
-                <Text style={tw`text-lg font-bold`}>
-                  {brand} {model}
-                </Text>
-                <Text style={tw`text-sm`}>{licensePlate}</Text>
-              </View>
+                <View style={tw`flex-1 pl-2`}>
+                  <Text style={tw`text-lg font-bold`}>
+                    {brand} {model} {id}
+                  </Text>
+                  <Text style={tw`text-sm`}>{licensePlate}</Text>
+                </View>
 
-              {approved ? (
-                <Icon
-                  type="ionicon"
-                  name="checkmark-circle"
-                  color="#3b82f6"
-                  size={24}
-                />
-              ) : (
-                <View style={tw`border border-blue-500 rounded-full w-6 h-6`} />
-              )}
-            </View>
+                {approved ? (
+                  <Icon
+                    type="ionicon"
+                    name="checkmark-circle"
+                    color="#3b82f6"
+                    size={24}
+                  />
+                ) : (
+                  <View
+                    style={tw`border border-blue-500 rounded-full w-6 h-6`}
+                  />
+                )}
+              </View>
+            </TouchableOpacity>
           ))}
         </ScrollView>
       )}

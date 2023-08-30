@@ -21,6 +21,7 @@ import NotificationScreen from "./screens/NotificationScreen";
 
 import VehicleManagementScreen from "./screens/VehicleManagementScreen";
 import AddVehicleScreen from "./screens/AddVehicleScreen";
+import AddVehicleDocumentsScreen from "./screens/AddVehicleDocumentsScreen";
 
 import DocumentManagementScreen from "./screens/DocumentManagementScreen";
 import DrivingLicenseScreen from "./screens/DrivingLicenseScreen";
@@ -150,6 +151,13 @@ export default function App() {
               <Stack.Screen
                 name="AddVehicleScreen"
                 component={AddVehicleScreen}
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="AddVehicleDocumentsScreen"
+                component={AddVehicleDocumentsScreen}
                 options={{
                   headerShown: false,
                 }}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -17,6 +17,25 @@ import firebase from "firebase/compat/app";
 
 const SignUpScreen = () => {
   const navigation = useNavigation();
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setUser(user);
+      setLoading(false);
+    });
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      // Redirect to SignUpScreen when no user is logged in
+      navigation.navigate("HomeScreen");
+    }
+  }, [user, navigation]);
 
   const generateRandomCode = () => {
     const min = 100000; // Minimum 4-digit number
