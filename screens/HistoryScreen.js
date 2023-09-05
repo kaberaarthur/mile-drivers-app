@@ -2,11 +2,191 @@ import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, ScrollView, Image } from "react-native";
 import { Icon } from "react-native-elements";
 import tw from "tailwind-react-native-classnames";
+import { useNavigation } from "@react-navigation/native";
+
+import { db, auth } from "../firebaseConfig";
+import firebase from "firebase/compat/app";
 
 const HistoryScreen = () => {
+  const navigation = useNavigation();
   const [selectedButton, setSelectedButton] = useState(null);
   const [filteredRides, setFilteredRides] = useState([]);
   const [totalEarned, setTotalEarned] = useState(0);
+  const [totalRides, setTotalRides] = useState(0);
+
+  const [ridesData, setRidesData] = useState([]);
+  const [rideDateIDs, setRideDateIDs] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
+
+  // Reusable function to format a Firestore Timestamp and return an object
+  const formatTimestamp = (timestamp) => {
+    // Convert Firestore Timestamp to JavaScript Date
+    const date = timestamp.toDate();
+
+    // Extract day of the week
+    const dayOfWeekLong = date.toLocaleString("default", { weekday: "short" }); // Get day of the week as a short name
+    const dayOfWeek = dayOfWeekLong.substring(0, 3);
+
+    // Extract day, month, and year components
+    const day = date.getDate();
+    const month = date.getMonth() + 1; // Get the numeric month
+    const year = date.getFullYear() % 100; // Get the last two digits of the year
+
+    // Format the day, month, and year as strings without leading zeros
+    const formattedDay = day < 10 ? `${day}` : day.toString();
+    const formattedMonth = month.toString();
+    const formattedYear = year < 10 ? `0${year}` : year.toString().slice(-2); // Get the last two digits of the year
+
+    // Calculate the rideDateID
+    const rideDateID = `${formattedMonth}${formattedDay}${formattedYear}`;
+
+    return {
+      id: rideDateID,
+      rideDateID,
+      rideMonth: formattedMonth,
+      rideDay: formattedDay,
+      rideDayOfWeek: dayOfWeek,
+      rideYear: formattedYear,
+    };
+  };
+
+  useEffect(() => {
+    // Listen for changes in the authentication state
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        // User is signed in
+        setCurrentUser(user);
+      } else {
+        // User is signed out
+        setCurrentUser(null);
+      }
+    });
+
+    // Unsubscribe from the listener when the component unmounts
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (currentUser) {
+      // Get the current date
+      const currentDate = new Date();
+      // Calculate the first day of the current month
+      const firstDayOfMonth = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        1
+      );
+      // Calculate the last day of the current month
+      const lastDayOfMonth = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth() + 1,
+        0
+      );
+
+      // Fetch data from Firestore using the currentUser's UID and date filter
+      const fetchData = async () => {
+        try {
+          const querySnapshot = await firebase
+            .firestore()
+            .collection("rides")
+            .where("driverAuthID", "==", currentUser.uid) // Use currentUser's UID
+            .where("dateCreated", ">=", firstDayOfMonth) // Filter rides with dateCreated >= first day of the month
+            .where("dateCreated", "<=", lastDayOfMonth) // Filter rides with dateCreated <= last day of the month
+            .get();
+
+          const data = querySnapshot.docs.map((doc) => {
+            // Include only the relevant data
+            return {
+              id: doc.id,
+              totalFareBeforeDeduction: doc.data().totalFareBeforeDeduction,
+              ...doc.data(),
+            };
+          });
+
+          // Calculate totalRides as the count of filtered rides
+          const totalRides = data.length;
+
+          // Calculate totalEarned as the sum of totalFareBeforeDeduction for filtered rides
+          const totalEarned = data.reduce(
+            (acc, ride) => acc + ride.totalFareBeforeDeduction,
+            0
+          );
+
+          // Set the state with totalRides and totalEarned
+          setTotalRides(totalRides);
+          setTotalEarned(totalEarned);
+
+          console.log("Total Rides: ", totalRides);
+          console.log("Total Earned: ", totalEarned);
+        } catch (error) {
+          console.error("Error fetching data from Firestore:", error);
+        }
+      };
+
+      fetchData();
+    }
+  }, [currentUser]);
+
+  useEffect(() => {
+    if (currentUser) {
+      // Get the current date
+      const currentDate = new Date();
+      // Calculate the first day of the current month
+      const firstDayOfMonth = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        1
+      );
+      // Calculate the last day of the current month
+      const lastDayOfMonth = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth() + 1,
+        0
+      );
+
+      // Fetch data from Firestore using the currentUser's UID
+      const fetchData = async () => {
+        try {
+          const querySnapshot = await firebase
+            .firestore()
+            .collection("rides")
+            .where("driverAuthID", "==", currentUser.uid) // Use currentUser's UID
+            .where("dateCreated", ">=", firstDayOfMonth) // Filter rides with dateCreated >= first day of the month
+            .where("dateCreated", "<=", lastDayOfMonth) // Filter rides with dateCreated <= last day of the month
+            .get();
+
+          const data = querySnapshot.docs.map((doc) => {
+            const timestamp = doc.data()["dateCreated"];
+            const formattedTimestamp = formatTimestamp(timestamp);
+
+            return {
+              id: doc.id,
+              rideDateID: formattedTimestamp.rideDateID,
+              rideMonth: formattedTimestamp.rideMonth,
+              rideDay: formattedTimestamp.rideDay,
+              rideDayOfWeek: formattedTimestamp.rideDayOfWeek,
+              rideYear: formattedTimestamp.rideYear,
+              ...doc.data(),
+            };
+          });
+
+          setRidesData(data);
+
+          // Create the rideDateIDs array from the fetched data
+          const rideDateIDs = Array.from(
+            new Set(data.map((ride) => ride.rideDateID))
+          );
+          setRideDateIDs(rideDateIDs);
+
+          console.log("Rides Dates: ", rideDateIDs);
+        } catch (error) {
+          console.error("Error fetching data from Firestore:", error);
+        }
+      };
+
+      fetchData();
+    }
+  }, [currentUser]); // Run this effect whenever currentUser changes
 
   const historyData = {
     rides: [
@@ -78,62 +258,6 @@ const HistoryScreen = () => {
     ],
   };
 
-  const renderDateButtons = () => {
-    const rideDateIDs = Array.from(
-      new Set(historyData.rides.map((ride) => ride.rideDateID))
-    );
-
-    const handleButtonPress = (rideDateID) => {
-      setSelectedButton(rideDateID);
-    };
-
-    return (
-      <ScrollView
-        horizontal
-        contentContainerStyle={tw`flex-row mb-4`}
-        showsHorizontalScrollIndicator={false}
-      >
-        {rideDateIDs.map((rideDateID) => {
-          const isSelected = selectedButton === rideDateID;
-          const ride = historyData.rides.find(
-            (ride) => ride.rideDateID === rideDateID
-          );
-
-          return (
-            <TouchableOpacity
-              key={rideDateID}
-              style={[
-                tw`rounded-md h-24 p-4 mr-2 bg-gray-100`,
-                isSelected ? tw`border-2 border-yellow-500` : null,
-              ]}
-              activeOpacity={0.7}
-              onPress={() => handleButtonPress(rideDateID)}
-            >
-              <View style={tw`flex items-center`}>
-                <Text
-                  style={[
-                    tw`text-center text-lg`,
-                    isSelected ? tw`text-yellow-500` : null,
-                  ]}
-                >
-                  {ride.rideDay}
-                </Text>
-                <Text
-                  style={[
-                    tw`text-center text-lg`,
-                    isSelected ? tw`text-yellow-500` : null,
-                  ]}
-                >
-                  {ride.rideDayOfWeek}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          );
-        })}
-      </ScrollView>
-    );
-  };
-
   function getRandomNumber() {
     return Math.floor(Math.random() * (75 - 20 + 1)) + 20;
   }
@@ -156,17 +280,19 @@ const HistoryScreen = () => {
           <Text style={tw`text-lg ml-2`}>{ride.riderName}</Text>
         </View>
         <Text style={tw`text-gray-900 text-lg font-bold mb-1`}>
-          Kshs. {ride.amountPaid}
+          Kshs. {ride.totalFareBeforeDeduction}
         </Text>
-        <Text style={tw`text-gray-900`}>{ride.kilometers} KM</Text>
+        <Text style={tw`text-gray-900`}>
+          {ride.rideTravelInformation[0]["distance"]["text"]}
+        </Text>
         <View style={tw`border-t border-gray-300 mt-2 pt-2`}>
           <Text style={tw`text-gray-400`}>PICK UP</Text>
           <Text style={tw`text-gray-900 font-bold text-lg`}>
-            {ride.pickupLocation}
+            {ride.rideOrigin[0]["description"]}
           </Text>
           <Text style={tw`text-gray-400 mt-2`}>DROP OFF</Text>
           <Text style={tw`text-gray-900 font-bold text-lg`}>
-            {ride.dropoffLocation}
+            {ride.rideDestination[0]["description"]}
           </Text>
         </View>
       </View>
@@ -206,8 +332,6 @@ const HistoryScreen = () => {
           <Text style={tw`text-lg font-bold`}>History</Text>
           <View style={tw`w-6`} />
         </View>
-
-        {renderDateButtons()}
       </View>
 
       <ScrollView style={tw`flex-1 bg-gray-100`}>
@@ -216,8 +340,12 @@ const HistoryScreen = () => {
             <View style={tw`flex-row items-center mb-2`}>
               <Icon type="ionicon" name="car-outline" color="black" size={24} />
             </View>
-            <Text style={tw`text-gray-800 text-sm`}>Total Jobs</Text>
-            <Text style={tw`text-gray-800 text-xl font-bold`}>{totalJobs}</Text>
+            <Text style={tw`text-gray-800 text-sm`}>
+              {"Total Jobs   (Month)"}
+            </Text>
+            <Text style={tw`text-gray-800 text-xl font-bold`}>
+              {totalRides}
+            </Text>
           </View>
           <View style={[tw`flex-1 bg-yellow-600 rounded-sm p-4 ml-2`]}>
             <View style={tw`flex-row items-center mb-2`}>
@@ -228,7 +356,9 @@ const HistoryScreen = () => {
                 size={24}
               />
             </View>
-            <Text style={tw`text-gray-800 text-sm`}>Earned Cash</Text>
+            <Text style={tw`text-gray-800 text-sm`}>
+              {"Earned Cash (Month)"}
+            </Text>
             <Text style={tw`text-gray-800 text-xl font-bold`}>
               Kshs. {totalEarned}
             </Text>
@@ -237,7 +367,7 @@ const HistoryScreen = () => {
 
         {/* Rides History */}
         <View style={tw`py-4`}>
-          {filteredRides.map((ride) => renderRideCard(ride))}
+          {ridesData.map((ride) => renderRideCard(ride))}
         </View>
       </ScrollView>
     </View>

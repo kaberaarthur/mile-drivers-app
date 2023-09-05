@@ -32,7 +32,7 @@ const SignUpScreen = () => {
 
   useEffect(() => {
     if (user) {
-      // Redirect to SignUpScreen when no user is logged in
+      // Redirect to HomeScreen when a user is logged in
       navigation.navigate("HomeScreen");
     }
   }, [user, navigation]);
