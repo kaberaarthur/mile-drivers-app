@@ -27,8 +27,14 @@ const markerImage = require("../assets/taxi-marker.png");
 // This API KEY is declared in the most unprofessional manner, correct it later
 const GOOGLE_MAPS_APIKEY = "AIzaSyD0kPJKSOU4qtXrvddyAZFHeXQY2LMrz_M";
 
-const PickUpScreen = () => {
+const PickUpScreen = ({ route }) => {
   const navigation = useNavigation();
+  const { ride } = route.params;
+
+  const origin = ride.rideOrigin[0];
+  const destination = ride.rideDestination[0];
+
+  /*
   const origin = {
     description: "TRM - Thika Road Mall, Nairobi, Kenya",
     location: { lat: -1.2195761, lng: 36.88842440000001 },
@@ -37,11 +43,16 @@ const PickUpScreen = () => {
     description: "Quickmart - Thindigua, Kiambu, Kenya",
     location: { lat: -1.2022673, lng: 36.83306879999999 },
   };
+  */
+
   const mapRef = useRef(null);
   const dispatch = useDispatch();
 
   // Use the useSelector hook to select the data from the currentRideSlice
   const currentRideData = useSelector((state) => state.currentRide);
+
+  // Log Ride Slice
+  console.log("Current Ride", currentRideData);
 
   useEffect(() => {
     if (!origin || !destination) return;
@@ -57,8 +68,8 @@ const PickUpScreen = () => {
     if (!origin || !destination) return;
 
     // Encode URI Components
-    const encodedDestination = encodeURIComponent(destination.description);
-    const encodedOrigin = encodeURIComponent(origin.description);
+    const encodedDestination = encodeURIComponent(destination["description"]);
+    const encodedOrigin = encodeURIComponent(origin["description"]);
 
     const getTravelTime = async () => {
       // const URL = `https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=${encodedOrigin}&destinations=${encodedDestination}&key=${GOOGLE_MAPS_APIKEY}`;
@@ -85,8 +96,8 @@ const PickUpScreen = () => {
           style={tw`flex-1`}
           mapType="terrain"
           initialRegion={{
-            latitude: origin.location.lat,
-            longitude: origin.location.lng,
+            latitude: origin["location"]["lat"],
+            longitude: origin["location"]["lng"],
             latitudeDelta: 0.005,
             longitudeDelta: 0.005,
           }}
@@ -104,11 +115,11 @@ const PickUpScreen = () => {
           {origin?.location && (
             <Marker
               coordinate={{
-                latitude: origin.location.lat,
-                longitude: origin.location.lng,
+                latitude: origin["location"]["lat"],
+                longitude: origin["location"]["lng"],
               }}
               title="Origin"
-              description={origin.description}
+              description={origin["description"]}
               identifier="origin"
               anchor={{ x: 0.5, y: 0.5 }}
             >
@@ -121,11 +132,11 @@ const PickUpScreen = () => {
           {destination?.location && (
             <Marker
               coordinate={{
-                latitude: destination.location.lat,
-                longitude: destination.location.lng,
+                latitude: destination["location"]["lat"],
+                longitude: destination["location"]["lng"],
               }}
               title="Destination"
-              description={destination.description}
+              description={destination["description"]}
               identifier="destination"
             />
           )}
@@ -137,7 +148,7 @@ const PickUpScreen = () => {
           <Text style={tw`uppercase text-sm text-gray-400 font-bold`}>
             PICK UP AT
           </Text>
-          <Text style={tw`text-gray-900 text-lg`}>{origin.description}</Text>
+          <Text style={tw`text-gray-900 text-lg`}>{origin["description"]}</Text>
         </View>
         <View style={tw`p-5`}>
           <TouchableOpacity

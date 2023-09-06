@@ -20,25 +20,40 @@ const OneRequestScreen = ({ route }) => {
   const { ride } = route.params;
   const dispatch = useDispatch();
 
-  // Log the ride object
-  console.log("Ride:", ride);
+  // Convert Date Object to String
+  function formatDateToCustomString(dateObject) {
+    const year = dateObject.getFullYear();
+    const month = (dateObject.getMonth() + 1).toString().padStart(2, "0"); // Adding 1 to month because it's zero-based
+    const day = dateObject.getDate().toString().padStart(2, "0");
+    const hours = dateObject.getHours().toString().padStart(2, "0");
+    const minutes = dateObject.getMinutes().toString().padStart(2, "0");
+    const seconds = dateObject.getSeconds().toString().padStart(2, "0");
+
+    const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
+    return formattedDate;
+  }
 
   const goToPickUpScreen = () => {
-    dispatch(
-      setCurrentRide({
-        riderProfilePicture: ride.riderAvatar,
-        riderName: ride.riderName,
-        amountOfTheRide: ride.tripFare.amount,
-        pickupPoint: ride.pickup,
-        dropOffPoint: ride.dropoff,
-        tripFare: {
-          amount: ride.tripFare.amount,
-          discount: ride.tripFare.discount,
-          totalDue: ride.tripFare.totalAmount,
-        },
-      })
-    );
-    navigation.navigate("PickUpScreen");
+    // Clone the ride object to avoid modifying the original object
+    const updatedRide = { ...ride };
+    console.log(typeof updatedRide.dateCreated.toISOString());
+    updatedRide.dateCreated = updatedRide.dateCreated.toISOString();
+    // console.log(updatedRide.dateCreated.toDate());
+
+    /*
+    // Convert the dateCreated field to a JavaScript Date objec
+    if (updatedRide.dateCreated instanceof firebase.firestore.Timestamp) {
+      // updatedRide.dateCreated = updatedRide.dateCreated.toDate();
+
+      updatedRide.dateCreated = formatDateToCustomString(
+        updatedRide.dateCreated
+      );
+    }
+    */
+
+    dispatch(setCurrentRide(updatedRide));
+    navigation.navigate("PickUpScreen", { ride: updatedRide });
   };
 
   const handleCancelRequest = () => {

@@ -1,18 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
+import firebase from "firebase/compat/app";
 
 const initialState = {
-  currentRide: {
-    riderProfilePicture: null,
-    riderName: null,
-    amountOfTheRide: null,
-    pickupPoint: null,
-    dropOffPoint: null,
-    tripFare: {
-      amount: null,
-      discount: null,
-      totalDue: null,
-    },
-  },
+  currentRide: {},
 };
 
 export const currentRideSlice = createSlice({
@@ -20,7 +10,14 @@ export const currentRideSlice = createSlice({
   initialState,
   reducers: {
     setCurrentRide: (state, action) => {
-      state.currentRide = action.payload;
+      const ride = action.payload;
+
+      // Check if dateCreated is a Firebase timestamp and convert it to a Date
+      if (ride.dateCreated instanceof firebase.firestore.Timestamp) {
+        ride.dateCreated = ride.dateCreated.toDate();
+      }
+
+      state.currentRide = ride;
     },
   },
 });
