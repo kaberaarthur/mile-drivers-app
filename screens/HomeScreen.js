@@ -10,13 +10,11 @@ import {
 import { Icon } from "react-native-elements";
 import tw from "tailwind-react-native-classnames";
 import { useNavigation } from "@react-navigation/native";
-import { ActivityIndicator } from "react-native";
-
 import { useDispatch, useSelector } from "react-redux";
 import { selectUser, setUser } from "../slices/userSlice";
 import { selectPerson, setPerson } from "../slices/personSlice";
-
-import { db, auth } from "../firebaseConfig";
+import { auth } from "../firebaseConfig"; // Import your Firebase config
+import firebase from "firebase/compat/app";
 
 const RequestCard = ({ request }) => {
   const firstName = request.riderName.split(" ")[0];
@@ -59,6 +57,7 @@ const RequestCard = ({ request }) => {
 
   return (
     <View style={tw`bg-white rounded-sm p-4 mb-4 pb-2`}>
+      <View style={tw`pt-4`}></View>
       <View style={tw`flex-row justify-between items-center `}>
         <View style={tw`flex-row items-center`}>
           <Image
@@ -67,22 +66,6 @@ const RequestCard = ({ request }) => {
           />
           <Text style={tw`text-lg font-bold pl-2`}>{firstName}</Text>
         </View>
-        <View>
-          <Text style={tw`text-lg font-bold`}>
-            Kshs {roundToNearestTen(request.price)}
-          </Text>
-          <Text style={tw`text-sm text-gray-500`}>{request.distance} km</Text>
-        </View>
-      </View>
-
-      <View style={tw`p-2`}>
-        <Text style={tw`text-sm font-bold text-gray-300`}>PICK UP</Text>
-        <Text style={tw`text-lg`}>{request.pickup}</Text>
-      </View>
-
-      <View style={tw`p-2`}>
-        <Text style={tw`text-sm font-bold text-gray-300`}>DROP OFF</Text>
-        <Text style={tw`text-lg`}>{request.dropoff}</Text>
       </View>
 
       <TouchableOpacity
@@ -91,6 +74,7 @@ const RequestCard = ({ request }) => {
       >
         <Text style={tw`text-center text-white font-bold`}>Accept Request</Text>
       </TouchableOpacity>
+      <View style={tw`pb-4`}></View>
     </View>
   );
 };
@@ -109,7 +93,33 @@ const HomeScreen = () => {
     isAvailable: true,
   });
 
-  const [requests, setRequests] = useState([]);
+  const [newRides, setNewRides] = useState([]); // Firestore data state
+
+  useEffect(() => {
+    // Initialize Firestore if not already initialized
+    const db = firebase.firestore();
+
+    // Define the query to fetch rides with rideStatus === "1"
+    const query = db.collection("rides").where("rideStatus", "==", "1");
+
+    // Subscribe to the query and update the state when data changes
+    const unsubscribe = query.onSnapshot((querySnapshot) => {
+      const updatedRides = [];
+      querySnapshot.forEach((doc) => {
+        // Get the ride data and add it to the updatedRides array
+        updatedRides.push({
+          id: doc.id,
+          ...doc.data(),
+        });
+      });
+      setNewRides(updatedRides);
+
+      console.log("New Rides: ", updatedRides);
+    });
+
+    // Clean up the subscription when the component unmounts
+    return () => unsubscribe();
+  }, []);
 
   const handleToggleStatus = () => {
     // Toggle driver status here
@@ -119,46 +129,7 @@ const HomeScreen = () => {
     }));
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("https://randomuser.me/api/?results=10");
-        const data = await response.json();
-        const randomNumber = Math.floor(Math.random() * 90000000) + 10000000;
-        const riderPhone = "+2547" + randomNumber.toString();
-
-        const fetchedRequests = data.results.map((user, index) => {
-          const currentDate = new Date();
-          const month = String(currentDate.getMonth() + 1).padStart(2, "0");
-          const day = String(currentDate.getDate()).padStart(2, "0");
-          const rideID = `${month}${day}${String(index + 1).padStart(3, "0")}`;
-
-          return {
-            rideID,
-            riderName: user.name.first + " " + user.name.last,
-            price: (Math.random() * 1000).toFixed(2),
-            distance: (Math.random() * 100).toFixed(2),
-            pickup: "TRM Drive, Thika Road",
-            dropoff: "Tabby House, Thika",
-            riderAvatar: user.picture.medium,
-            amount: (Math.random() * 1000).toFixed(2),
-            tripFare: {
-              amount: (Math.random() * 1000).toFixed(2),
-              discount: (Math.random() * 100).toFixed(2),
-              totalAmount: (Math.random() * 1000).toFixed(2),
-            },
-            riderPhone: riderPhone,
-          };
-        });
-
-        setRequests(fetchedRequests);
-      } catch (error) {
-        console.error("Error fetching requests:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
+  // ... (no changes to the fetchData function)
 
   return (
     <SafeAreaView style={tw`pt-10 flex-1`}>
@@ -184,7 +155,11 @@ const HomeScreen = () => {
       >
         {driver.isOnline ? (
           <Text style={tw`text-black font-bold`}>
-            You have 10 new requests.
+            You have{" "}
+            {newRides.length === 1
+              ? "1 new request"
+              : `${newRides.length} new requests`}
+            .
           </Text>
         ) : (
           <View style={tw`flex-row items-center`}>
@@ -200,7 +175,7 @@ const HomeScreen = () => {
       </View>
 
       <FlatList
-        data={requests}
+        data={newRides} // Use Firestore data here
         renderItem={({ item }) => <RequestCard request={item} />}
         keyExtractor={(item, index) => index.toString()}
         contentContainerStyle={tw`p-4`}

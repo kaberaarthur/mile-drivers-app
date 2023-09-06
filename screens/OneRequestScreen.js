@@ -11,7 +11,7 @@ import { Icon } from "react-native-elements";
 import tw from "tailwind-react-native-classnames";
 import { useNavigation } from "@react-navigation/native";
 import { useDispatch } from "react-redux";
-import { setCurrentRide } from "../slices/currentRideSlice"; // Update this path based on where your currentRideSlice is located
+import { setCurrentRide } from "../slices/currentRideSlice"; // Update this path based on where your currentRideSlice isi located
 
 const OneRequestScreen = ({ route }) => {
   const navigation = useNavigation();
@@ -58,33 +58,6 @@ const OneRequestScreen = ({ route }) => {
         <View style={tw`pl-4`}>
           <Text style={tw`text-lg font-bold`}>{ride.riderName}</Text>
           <Text style={tw`text-sm`}>{ride.riderPhone}</Text>
-          <Text style={tw`text-sm`}>Kshs {ride.tripFare.amount}</Text>
-          <Text style={tw`text-sm`}>{ride.distance} km</Text>
-        </View>
-      </View>
-
-      <View style={tw`mb-5`}>
-        <Text style={tw`text-sm font-bold text-gray-300`}>PICK UP</Text>
-        <Text style={tw`text-lg`}>{ride.pickup}</Text>
-      </View>
-
-      <View style={tw`mb-5`}>
-        <Text style={tw`text-sm font-bold text-gray-300`}>DROP OFF</Text>
-        <Text style={tw`text-lg`}>{ride.dropoff}</Text>
-      </View>
-
-      <View
-        style={tw`bg-gray-100 py-3 mb-5 flex-row justify-between items-center`}
-      >
-        <View>
-          <Text style={tw`text-base font-bold`}>TRIP FARE</Text>
-          <Text style={tw`text-sm`}>Amount: Kshs {ride.tripFare.amount}</Text>
-          <Text style={tw`text-sm`}>
-            Discount: Kshs {ride.tripFare.discount}
-          </Text>
-          <Text style={tw`text-base text-right`}>
-            Total Amount: Kshs {ride.tripFare.totalAmount}
-          </Text>
         </View>
       </View>
 
