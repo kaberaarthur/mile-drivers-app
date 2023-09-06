@@ -12,11 +12,16 @@ import tw from "tailwind-react-native-classnames";
 import { useNavigation } from "@react-navigation/native";
 import { useDispatch } from "react-redux";
 import { setCurrentRide } from "../slices/currentRideSlice"; // Update this path based on where your currentRideSlice isi located
+import { db, auth } from "../firebaseConfig"; // Import your Firebase config
+import firebase from "firebase/compat/app";
 
 const OneRequestScreen = ({ route }) => {
   const navigation = useNavigation();
   const { ride } = route.params;
   const dispatch = useDispatch();
+
+  // Log the ride object
+  console.log("Ride:", ride);
 
   const goToPickUpScreen = () => {
     dispatch(
@@ -34,6 +39,26 @@ const OneRequestScreen = ({ route }) => {
       })
     );
     navigation.navigate("PickUpScreen");
+  };
+
+  const handleCancelRequest = () => {
+    // Get the ride ID
+    const rideId = ride.id;
+
+    console.log(rideId);
+
+    // Update Firestore document
+    db.collection("rides")
+      .doc(rideId)
+      .update({ rideStatus: "1" })
+      .then(() => {
+        console.log("Ride status updated to 2");
+        // Now, navigate to OneRequestScreen
+        navigation.navigate("HomeScreen");
+      })
+      .catch((error) => {
+        console.error("Error updating ride status:", error);
+      });
   };
 
   return (
@@ -81,7 +106,7 @@ const OneRequestScreen = ({ route }) => {
         </TouchableOpacity>
         <TouchableOpacity
           style={tw`items-center`}
-          onPress={() => navigation.navigate("ChatScreen")}
+          onPress={() => navigation.navigate("ChatScreen", { ride: ride })}
         >
           <View style={tw`items-center`}>
             <Icon
@@ -94,7 +119,10 @@ const OneRequestScreen = ({ route }) => {
             <Text style={tw`text-sm text-center`}>Message</Text>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity style={tw`items-center`}>
+        <TouchableOpacity
+          style={tw`items-center`}
+          onPress={handleCancelRequest}
+        >
           <View style={tw`items-center`}>
             <Icon
               type="ionicon"

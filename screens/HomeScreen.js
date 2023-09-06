@@ -13,7 +13,7 @@ import { useNavigation } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 import { selectUser, setUser } from "../slices/userSlice";
 import { selectPerson, setPerson } from "../slices/personSlice";
-import { auth } from "../firebaseConfig"; // Import your Firebase config
+import { db, auth } from "../firebaseConfig"; // Import your Firebase config
 import firebase from "firebase/compat/app";
 
 const RequestCard = ({ request }) => {
@@ -47,8 +47,21 @@ const RequestCard = ({ request }) => {
   }
 
   const handleAcceptRequest = () => {
-    navigation.navigate("OneRequestScreen", { ride: request });
-    console.log(request.rideID);
+    // Get the ride ID
+    const rideId = request.id;
+
+    // Update Firestore document
+    db.collection("rides")
+      .doc(rideId)
+      .update({ rideStatus: "2" })
+      .then(() => {
+        console.log("Ride status updated to 2");
+        // Now, navigate to OneRequestScreen
+        navigation.navigate("OneRequestScreen", { ride: request });
+      })
+      .catch((error) => {
+        console.error("Error updating ride status:", error);
+      });
   };
 
   function roundToNearestTen(num) {

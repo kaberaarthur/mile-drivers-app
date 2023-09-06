@@ -12,6 +12,7 @@ import { useNavigation } from "@react-navigation/native";
 
 const ChatScreen = () => {
   const navigation = useNavigation(); // Access the navigation object
+  const { ride } = route.params; // Access data about the ride
   const [messageText, setMessageText] = useState(""); // Declare the messageText state variable
 
   const messages = [
