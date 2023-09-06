@@ -52,7 +52,10 @@ const PickUpScreen = ({ route }) => {
   const currentRideData = useSelector((state) => state.currentRide);
 
   // Log Ride Slice
-  console.log("Current Ride", currentRideData);
+  console.log(
+    "Current Ride - ",
+    currentRideData["currentRide"]["rideDestination"][0]["description"]
+  );
 
   useEffect(() => {
     if (!origin || !destination) return;
@@ -148,7 +151,9 @@ const PickUpScreen = ({ route }) => {
           <Text style={tw`uppercase text-sm text-gray-400 font-bold`}>
             PICK UP AT
           </Text>
-          <Text style={tw`text-gray-900 text-lg`}>{origin["description"]}</Text>
+          <Text style={tw`text-gray-900 text-lg`}>
+            {currentRideData["currentRide"]["rideOrigin"][0]["description"]}
+          </Text>
         </View>
         <View style={tw`p-5`}>
           <TouchableOpacity

@@ -37,20 +37,11 @@ const OneRequestScreen = ({ route }) => {
   const goToPickUpScreen = () => {
     // Clone the ride object to avoid modifying the original object
     const updatedRide = { ...ride };
-    console.log(typeof updatedRide.dateCreated.toISOString());
-    updatedRide.dateCreated = updatedRide.dateCreated.toISOString();
-    // console.log(updatedRide.dateCreated.toDate());
+    // console.log(typeof updatedRide.dateCreated.toISOString());
+    console.log(typeof updatedRide.dateCreated.toDate().toISOString());
 
-    /*
-    // Convert the dateCreated field to a JavaScript Date objec
-    if (updatedRide.dateCreated instanceof firebase.firestore.Timestamp) {
-      // updatedRide.dateCreated = updatedRide.dateCreated.toDate();
-
-      updatedRide.dateCreated = formatDateToCustomString(
-        updatedRide.dateCreated
-      );
-    }
-    */
+    // Convert Firebase Timestamp to String to Make it Serializable for Redux Slice
+    updatedRide.dateCreated = updatedRide.dateCreated.toDate().toISOString();
 
     dispatch(setCurrentRide(updatedRide));
     navigation.navigate("PickUpScreen", { ride: updatedRide });
