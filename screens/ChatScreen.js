@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -9,144 +9,103 @@ import {
 import { Icon } from "react-native-elements";
 import tw from "tailwind-react-native-classnames";
 import { useNavigation } from "@react-navigation/native";
+import { db, auth } from "../firebaseConfig"; // Import your Firebase config
+import firebase from "firebase/compat/app";
 
-const ChatScreen = () => {
+const ChatScreen = ({ route }) => {
   const navigation = useNavigation(); // Access the navigation object
   const { ride } = route.params; // Access data about the ride
   const [messageText, setMessageText] = useState(""); // Declare the messageText state variable
+  const [rideMessages, setRideMessages] = useState([]); // All messages associated to Current Ride
+  const [authID, setAuthID] = useState(null);
 
-  const messages = [
-    {
-      id: 1,
-      sender: "Rider",
-      message: "Hello, how are you?",
-      timestamp: new Date(2022, 2, 12, 19, 38), // May 27, 2023, 7:38 PM
-    },
-    {
-      id: 2,
-      sender: "Rider",
-      message: "Hello, how are you?",
-      timestamp: new Date(2023, 1, 17, 18, 12), // May 27, 2023, 7:38 PM
-    },
-    {
-      id: 3,
-      sender: "Driver",
-      message: "I am good",
-      timestamp: new Date(2023, 4, 24, 16, 11), // May 27, 2023, 7:38 PM
-    },
-    {
-      id: 4,
-      sender: "Rider",
-      message: "Where are you at the moment?",
-      timestamp: new Date(2023, 5, 24, 19, 23), // May 27, 2023, 7:38 PM
-    },
-    {
-      id: 5,
-      sender: "Driver",
-      message: "I'm stuck in traffic, I'll be there in a minute or so.",
-      timestamp: new Date(2023, 4, 27, 19, 40), // May 27, 2023, 7:40 PM
-    },
-    {
-      id: 6,
-      sender: "Rider",
-      message: "Ok please hurry up!",
-      timestamp: new Date(2023, 4, 27, 19, 42), // May 27, 2023, 7:42 PM
-    },
-    {
-      id: 7,
-      sender: "Rider",
-      message: "How's the weather there?",
-      timestamp: new Date(2023, 4, 27, 19, 45),
-    },
-    {
-      id: 8,
-      sender: "Driver",
-      message: "It's sunny and warm.",
-      timestamp: new Date(2023, 4, 27, 19, 46),
-    },
-    {
-      id: 9,
-      sender: "Rider",
-      message: "Great! I love sunny weather.",
-      timestamp: new Date(2023, 4, 27, 19, 48),
-    },
-    {
-      id: 10,
-      sender: "Driver",
-      message: "Me too! Makes the ride more enjoyable.",
-      timestamp: new Date(2023, 4, 27, 19, 50),
-    },
-    {
-      id: 11,
-      sender: "Rider",
-      message: "Are you familiar with this area?",
-      timestamp: new Date(2023, 4, 27, 19, 55),
-    },
-    {
-      id: 12,
-      sender: "Driver",
-      message: "Yes, I've been driving here for years.",
-      timestamp: new Date(2023, 4, 27, 19, 57),
-    },
-    {
-      id: 13,
-      sender: "Rider",
-      message: "That's reassuring. I'm new to this city.",
-      timestamp: new Date(2023, 4, 27, 20, 2),
-    },
-    {
-      id: 14,
-      sender: "Driver",
-      message: "No worries! I'll get you to your destination safely.",
-      timestamp: new Date(2023, 4, 27, 20, 5),
-    },
-    {
-      id: 15,
-      sender: "Rider",
-      message: "Thank you, I appreciate it.",
-      timestamp: new Date(2023, 4, 27, 20, 10),
-    },
-    {
-      id: 16,
-      sender: "Driver",
-      message: "You're welcome! Enjoy the ride.",
-      timestamp: new Date(2023, 4, 27, 20, 12),
-    },
-    {
-      id: 17,
-      sender: "Rider",
-      message: "Could you please drop me off at the mall?",
-      timestamp: new Date(2023, 4, 27, 20, 20),
-    },
-    {
-      id: 18,
-      sender: "Driver",
-      message: "Sure, I'll take you to the mall.",
-      timestamp: new Date(2023, 4, 27, 20, 22),
-    },
-    {
-      id: 19,
-      sender: "Rider",
-      message: "Thanks again for the ride.",
-      timestamp: new Date(2023, 4, 27, 20, 30),
-    },
-    {
-      id: 20,
-      sender: "Driver",
-      message: "You're welcome! Have a great day.",
-      timestamp: new Date(2023, 4, 27, 20, 32),
-    },
-  ];
+  useEffect(() => {
+    // Listen for changes in authentication state
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        // User is signed in, get their AuthID
+        setAuthID(user.uid);
+        console.log("Current User: " + user.uid);
+      } else {
+        // User is signed out, reset AuthID
+        setAuthID(null);
+      }
+    });
+
+    // Clean up the subscription when the component unmounts
+    return () => unsubscribe();
+  }, []);
+
+  // Function to convert a Firebase timestamp to a formatted string
+  const formatFirebaseTimestamp = (timestamp) => {
+    if (!timestamp || !(timestamp instanceof firebase.firestore.Timestamp)) {
+      return ""; // Return an empty string for invalid timestamps
+    }
+
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+
+    const date = timestamp.toDate();
+    const month = months[date.getMonth()];
+    const day = date.getDate();
+
+    let daySuffix = "TH";
+    if (day === 1 || day === 21 || day === 31) {
+      daySuffix = "ST";
+    } else if (day === 2 || day === 22) {
+      daySuffix = "ND";
+    } else if (day === 3 || day === 23) {
+      daySuffix = "RD";
+    }
+
+    return `${month}, ${day}${daySuffix}`;
+  };
+
+  useEffect(() => {
+    // Initialize Firestore if not already initialized
+    const messagesRef = db.collection("messages");
+
+    // Define the query to fetch messages where ride is equal to ride.id
+    const query = messagesRef.where("rideID", "==", ride.id);
+
+    // Subscribe to the query and update the state when data changes
+    const unsubscribe = query.onSnapshot((querySnapshot) => {
+      const updatedMessages = [];
+      querySnapshot.forEach((doc) => {
+        // Get the message data and add it to the updatedMessages array
+        updatedMessages.push({
+          id: doc.id,
+          ...doc.data(),
+        });
+      });
+      setRideMessages(updatedMessages);
+
+      console.log("Ride Messages: ", updatedMessages);
+    });
+
+    // Clean up the subscription when the component unmounts
+    return () => unsubscribe();
+  }, [ride]);
 
   const renderChatBubble = (message) => {
-    const isRider = message.sender === "Rider";
+    const isRider = message.senderPerson === "Rider";
     const chatBubbleStyle = isRider
       ? tw`bg-white rounded-lg shadow`
       : tw`bg-yellow-500 rounded-lg`;
     const textStyle = isRider ? tw`text-black` : tw`text-white`;
     const timestampStyle = isRider ? tw`text-left` : tw`text-right`;
-
-    const formattedTimestamp = formatTimestamp(message.timestamp);
 
     return (
       <View key={message.id} style={tw`mb-2`}>
@@ -154,13 +113,13 @@ const ChatScreen = () => {
           <Text style={[tw`text-base`, textStyle]}>{message.message}</Text>
         </View>
         <Text style={[tw`text-xs text-gray-500 mb-1`, timestampStyle]}>
-          {formattedTimestamp}
+          {formatFirebaseTimestamp(message.timestamp)}
         </Text>
       </View>
     );
   };
 
-  const formatTimestamp = (timestamp) => {
+  const formatTimestamp = (timestamp, message) => {
     const currentDate = new Date();
     const messageDate = new Date(timestamp);
 
@@ -184,19 +143,30 @@ const ChatScreen = () => {
   };
 
   const handleSendMessage = () => {
-    // Logic to handle sending the message
-    if (messageText.trim() !== "") {
-      // Check if the message is not empty or only whitespace
-      const newMessage = {
-        id: messages.length + 1,
-        sender: "Rider", // or "Driver", depending on the user
-        message: messageText.trim(),
-        timestamp: new Date(),
-      };
+    // Create a reference to the 'messages' collection
+    const messagesRef = db.collection("messages");
 
-      // Add the new message to the messages array
-      setMessageText(""); // Clear the input field after sending the message
-    }
+    // Create a new message object
+    const newMessage = {
+      message: messageText,
+      sender: ride.driverId,
+      receiver: ride.riderId,
+      rideID: ride.id,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+    };
+
+    console.log("New Message: ", newMessage);
+
+    // Add the message to the 'messages' collection
+    messagesRef
+      .add(newMessage)
+      .then((docRef) => {
+        console.log("Message added with ID: ", docRef.id);
+        setMessageText(""); // Clear the input field after sending the message
+      })
+      .catch((error) => {
+        console.error("Error adding message: ", error);
+      });
   };
 
   return (
@@ -211,7 +181,7 @@ const ChatScreen = () => {
             size={24}
           />
         </TouchableOpacity>
-        <Text style={tw`text-lg font-bold text-center`}>Rider's Name</Text>
+        <Text style={tw`text-lg font-bold text-center`}>{ride.riderName}</Text>
         <View style={tw`w-6`} />
       </View>
 
@@ -221,7 +191,10 @@ const ChatScreen = () => {
       {/* Chat Messages */}
       <ScrollView contentContainerStyle={tw`p-4`} style={tw`flex-1`}>
         {/* Render messages */}
-        {messages.map((message) => renderChatBubble(message))}
+        {rideMessages
+          .slice()
+          .reverse()
+          .map((message) => renderChatBubble(message))}
       </ScrollView>
 
       {/* Input Box */}
@@ -233,7 +206,11 @@ const ChatScreen = () => {
             value={messageText}
             onChangeText={(text) => setMessageText(text)}
           />
-          <TouchableOpacity style={tw`ml-2`} onPress={handleSendMessage}>
+          <TouchableOpacity
+            style={tw`ml-2`}
+            onPress={handleSendMessage}
+            disabled={messageText.trim() === ""}
+          >
             <Icon type="ionicon" name="send" color="#F5B800" size={24} />
           </TouchableOpacity>
         </View>
