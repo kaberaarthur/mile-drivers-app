@@ -25,6 +25,8 @@ const RequestCard = ({ request }) => {
   const dispatch = useDispatch();
   const person = useSelector(selectPerson);
 
+  console.log("The User: ", person);
+
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       setUser(user);
@@ -53,7 +55,13 @@ const RequestCard = ({ request }) => {
     // Update Firestore document
     db.collection("rides")
       .doc(rideId)
-      .update({ rideStatus: "2" })
+      .update({
+        rideStatus: "2",
+        driverId: person["authID"],
+        driverName: person["name"],
+        driverPhone: person["phone"],
+        driverRating: person["rating"],
+      })
       .then(() => {
         console.log("Ride status updated to 2");
         // Now, navigate to OneRequestScreen
