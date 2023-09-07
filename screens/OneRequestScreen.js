@@ -10,8 +10,10 @@ import {
 import { Icon } from "react-native-elements";
 import tw from "tailwind-react-native-classnames";
 import { useNavigation } from "@react-navigation/native";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setCurrentRide } from "../slices/currentRideSlice"; // Update this path based on where your currentRideSlice isi located
+import { selectPerson, setPerson } from "../slices/personSlice";
+
 import { db, auth } from "../firebaseConfig"; // Import your Firebase config
 import firebase from "firebase/compat/app";
 
@@ -19,6 +21,7 @@ const OneRequestScreen = ({ route }) => {
   const navigation = useNavigation();
   const { ride } = route.params;
   const dispatch = useDispatch();
+  const person = useSelector(selectPerson);
 
   // Convert Date Object to String
   function formatDateToCustomString(dateObject) {
@@ -56,7 +59,13 @@ const OneRequestScreen = ({ route }) => {
     // Update Firestore document
     db.collection("rides")
       .doc(rideId)
-      .update({ rideStatus: "1" })
+      .update({
+        rideStatus: "1",
+        driverId: "",
+        driverName: "",
+        driverPhone: "",
+        driverRating: "",
+      })
       .then(() => {
         console.log("Ride status updated to 2");
         // Now, navigate to OneRequestScreen
