@@ -10,6 +10,8 @@ import { Icon } from "react-native-elements";
 import tw from "tailwind-react-native-classnames";
 import { useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
+import { db, auth } from "../firebaseConfig"; // Import your Firebase config
+import firebase from "firebase/compat/app";
 
 const RideInProgress = () => {
   const navigation = useNavigation();
@@ -18,6 +20,33 @@ const RideInProgress = () => {
   const dummyName = "Arthur Kabera";
   const dummyPlaceOne = "TRM, Thika Road";
   const dummyPlaceTwo = "Quickmart, Thindigua";
+
+  // Use the useSelector hook to select the data from the currentRideSlice
+  const currentRideData = useSelector((state) => state.currentRide);
+
+  // Log Ride Slice
+  console.log("Current Ride - ", currentRideData["currentRide"]["id"]);
+
+  // Drop Off Code
+  const handleDropOff = () => {
+    // Get the ride ID
+    const rideId = currentRideData["currentRide"]["id"];
+
+    // Update Firestore document
+    db.collection("rides")
+      .doc(rideId)
+      .update({
+        rideStatus: "4",
+      })
+      .then(() => {
+        console.log("Ride Status Changed: Ride Completed");
+        // Now, navigate to OneRequestScreen
+        navigation.navigate("RideInProgressScreen");
+      })
+      .catch((error) => {
+        console.error("Error updating ride status:", error);
+      });
+  };
 
   return (
     <SafeAreaView style={tw`flex-1 bg-yellow-500 p-4`}>
@@ -74,7 +103,10 @@ const RideInProgress = () => {
                 Cancel
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity style={tw`flex-1 bg-yellow-500 p-4 rounded ml-2`}>
+            <TouchableOpacity
+              style={tw`flex-1 bg-yellow-500 p-4 rounded ml-2`}
+              onPress={handleDropOff}
+            >
               <Text style={tw`text-center text-gray-100 font-bold text-lg`}>
                 Drop Off
               </Text>

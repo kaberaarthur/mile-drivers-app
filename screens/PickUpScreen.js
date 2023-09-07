@@ -96,6 +96,7 @@ const PickUpScreen = ({ route }) => {
   const handleStartRide = () => {
     // Get the ride ID
     const rideId = ride.id;
+    const rideData = ride;
 
     // Update Firestore document
     db.collection("rides")
@@ -106,7 +107,7 @@ const PickUpScreen = ({ route }) => {
       .then(() => {
         console.log("Ride Status Changed: In Progress");
         // Now, navigate to OneRequestScreen
-        navigation.navigate("RideInProgressScreen");
+        navigation.navigate("RideInProgressScreen", { ride: rideData });
       })
       .catch((error) => {
         console.error("Error updating ride status:", error);
