@@ -55,7 +55,7 @@ const RideInProgress = () => {
             <Text style={tw`text-lg`}>{dummyPlaceTwo}</Text>
           </View>
           <View style={tw`flex-row justify-between mb-5`}>
-            <Text style={tw`text-sm font-bold`}>Cash:</Text>
+            <Text style={tw`text-sm font-bold`}>Client Pays:</Text>
             <Text style={tw`text-sm`}>Kshs {280}</Text>
           </View>
           <View style={tw`flex-row justify-between mb-5`}>
@@ -63,7 +63,7 @@ const RideInProgress = () => {
             <Text style={tw`text-sm`}>Kshs {300}</Text>
           </View>
           <View style={tw`flex-row justify-between mb-5`}>
-            <Text style={tw`text-sm font-bold`}>Total Due:</Text>
+            <Text style={tw`text-sm font-bold`}>Ride Total:</Text>
             <Text style={tw`text-sm font-bold`}>Kshs {580}</Text>
           </View>
 

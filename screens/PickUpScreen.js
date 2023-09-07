@@ -20,6 +20,8 @@ import {
 } from "../slices/navSlice";
 
 import MapViewDirections from "react-native-maps-directions";
+import { db, auth } from "../firebaseConfig"; // Import your Firebase config
+import firebase from "firebase/compat/app";
 // import { GOOGLE_MAPS_APIKEY } from "@env"; #Remember to correct this later
 
 const markerImage = require("../assets/taxi-marker.png");
@@ -91,6 +93,26 @@ const PickUpScreen = ({ route }) => {
     getTravelTime();
   }, [origin, destination, GOOGLE_MAPS_APIKEY]);
 
+  const handleStartRide = () => {
+    // Get the ride ID
+    const rideId = ride.id;
+
+    // Update Firestore document
+    db.collection("rides")
+      .doc(rideId)
+      .update({
+        rideStatus: "3",
+      })
+      .then(() => {
+        console.log("Ride Status Changed: In Progress");
+        // Now, navigate to OneRequestScreen
+        navigation.navigate("RideInProgressScreen");
+      })
+      .catch((error) => {
+        console.error("Error updating ride status:", error);
+      });
+  };
+
   return (
     <View style={tw`flex-1`}>
       <View style={tw`flex-1`}>
@@ -158,12 +180,7 @@ const PickUpScreen = ({ route }) => {
         <View style={tw`p-5`}>
           <TouchableOpacity
             style={tw`p-4 bg-yellow-500 justify-center items-center`}
-            onPress={() => {
-              console.log("Start Ride Button Pressed");
-              console.log("Current Ride Data:", currentRideData);
-
-              navigation.navigate("RideInProgressScreen");
-            }}
+            onPress={handleStartRide}
           >
             <Text style={tw`text-gray-900 font-bold text-xl`}>START RIDE</Text>
           </TouchableOpacity>
