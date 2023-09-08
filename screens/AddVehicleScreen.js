@@ -41,6 +41,7 @@ const AddVehicleScreen = () => {
       owner: auth.currentUser.uid, // Adding owner info if necessary
       dateCreated: firebase.firestore.FieldValue.serverTimestamp(),
       activeCar: false,
+      approved: false,
     };
 
     db.collection("vehicles")

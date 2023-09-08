@@ -80,6 +80,7 @@ const VehicleManagementScreen = () => {
         <ScrollView>
           {vehicles.map(({ id, brand, model, licensePlate, approved }) => (
             <TouchableOpacity
+              key={id}
               onPress={() =>
                 navigation.navigate("AddVehicleDocumentsScreen", {
                   vehicleID: id,
