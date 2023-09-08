@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   SafeAreaView,
   View,
@@ -13,11 +13,15 @@ import { useNavigation } from "@react-navigation/native";
 import { db, auth } from "../firebaseConfig"; // Import your Firebase config
 import firebase from "firebase/compat/app";
 import { setPerson, selectPerson } from "../slices/personSlice";
+import Modal from "react-native-modal";
+import StarRating from "react-native-star-rating";
 
 const RideInProgress = () => {
   const navigation = useNavigation();
   const currentRide = useSelector((state) => state.currentRide);
   const person = useSelector(selectPerson);
+  const [isRatingModalVisible, setRatingModalVisible] = useState(false);
+  const [rating, setRating] = useState(0);
 
   console.log("The Driver", person);
 
@@ -37,6 +41,7 @@ const RideInProgress = () => {
       })
       .then(() => {
         console.log("Ride Status Changed: Ride Completed");
+        setRatingModalVisible(true);
         // Now, navigate to OneRequestScreen
         // navigation.navigate("RideInProgressScreen");
       })
@@ -94,6 +99,70 @@ const RideInProgress = () => {
       .catch((error) => {
         console.error("Error updating ride status:", error);
       });
+  };
+
+  function roundToDecimal(number, decimalPlaces) {
+    if (decimalPlaces < 0) {
+      throw new Error("Decimal places must be greater than or equal to zero.");
+    }
+    const factor = 10 ** decimalPlaces;
+    return Math.round(number * factor) / factor;
+  }
+
+  // Function to update the rider's rating in the 'riders' collection using authID
+  const updateRiderRatingByAuthID = async (authID, newRating) => {
+    const db = firebase.firestore();
+    const ridersCollection = db.collection("riders");
+
+    try {
+      // Query the rider document by authID
+      const query = ridersCollection.where("authID", "==", authID);
+
+      // Execute the query
+      const querySnapshot = await query.get();
+
+      if (querySnapshot.size === 0) {
+        console.error(`Rider with authID ${authID} not found.`);
+        return;
+      }
+
+      // Assuming there's only one matching rider (authID is unique)
+      const riderDocRef = querySnapshot.docs[0].ref;
+
+      // Update the rider's rating
+      await riderDocRef.update({
+        rating: newRating, // Replace 'rating' with the actual field name in your document
+      });
+
+      console.log(`Rider with authID ${authID} rating updated to ${newRating}`);
+    } catch (error) {
+      console.error("Error updating rider rating:", error);
+    }
+  };
+
+  const handleRateRider = (rating) => {
+    console.log("Selected Rating:", rating);
+
+    // Take Existing Rating, Find the Mean
+    const currentRating = currentRideData["currentRide"]["riderRating"];
+    const newRating = roundToDecimal(
+      (parseFloat(currentRating) + parseFloat(rating)) / 2,
+      1
+    );
+
+    console.log(
+      "Newer Rating: " +
+        roundToDecimal((parseFloat(currentRating) + parseFloat(rating)) / 2, 1)
+    );
+
+    const riderAuthID = currentRideData["currentRide"]["riderId"];
+    updateRiderRatingByAuthID(riderAuthID, newRating);
+
+    // Close the modal after rating
+    // setRatingModalVisible(false);
+
+    // Navigate to the HomeScreen
+    // navigation.navigate("HomeScreen");
   };
 
   return (
@@ -177,6 +246,24 @@ const RideInProgress = () => {
           </View>
         </View>
       </View>
+
+      <Modal isVisible={isRatingModalVisible}>
+        <View style={tw`bg-white p-6 rounded-lg`}>
+          <Text>Rate the rider</Text>
+
+          <StarRating
+            disabled={false}
+            maxStars={5}
+            rating={rating}
+            selectedStar={(rating) => setRating(rating)}
+            fullStarColor={"#f1c40f"} // Customize the color of filled stars
+          />
+
+          <TouchableOpacity onPress={() => handleRateRider(rating)}>
+            <Text style={tw`p-4 text-base font-semibold`}>Submit Rating</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
