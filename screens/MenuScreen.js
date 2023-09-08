@@ -44,17 +44,13 @@ function MenuScreen() {
 
   const menuItems = [
     { name: "History", icon: "albums-outline", screen: "HistoryScreen" },
-    {
-      name: "Requests",
-      icon: "notifications-outline",
-      screen: "RequestsScreen",
-    },
+
     {
       name: "Notifications",
       icon: "copy-outline",
       screen: "NotificationScreen",
     },
-    { name: "Ride", icon: "car-outline", screen: "RideScreen" },
+
     {
       name: "Vehicle Management",
       icon: "car-sport-outline",
@@ -67,7 +63,11 @@ function MenuScreen() {
       screen: "DocumentManagementScreen",
     },
 
-    { name: "Pickup", icon: "location-outline", screen: "PickupScreen" },
+    {
+      name: "Finances",
+      icon: "cash-outline",
+      screen: "DocumentManagementScreen",
+    },
   ];
 
   return (
