@@ -66,7 +66,7 @@ function MenuScreen() {
     {
       name: "Finances",
       icon: "cash-outline",
-      screen: "DocumentManagementScreen",
+      screen: "FinanceScreen",
     },
   ];
 

@@ -13,6 +13,7 @@ import { useNavigation } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 import { selectPerson, setPerson } from "../slices/personSlice";
 import { db, auth } from "../firebaseConfig";
+import { ActivityIndicator } from "react-native";
 
 const user = {
   id: "1",
@@ -29,10 +30,13 @@ const EditProfileScreen = () => {
   const navigation = useNavigation();
   const [userEmail, setEmail] = useState(person.email);
   const [userName, setName] = useState(person.name);
+  const [isLoading, setIsLoading] = useState(false);
 
   const dispatch = useDispatch();
 
   const updateProfile = () => {
+    setIsLoading(true);
+
     const updatedEmail = userEmail.trim();
     const updatedName = userName.trim();
 
@@ -68,6 +72,8 @@ const EditProfileScreen = () => {
           console.log("Error getting documents: ", error);
         });
     }
+
+    setIsLoading(false);
   };
 
   return (
@@ -105,7 +111,13 @@ const EditProfileScreen = () => {
         style={[tw`mt-5 py-3 px-6 rounded-sm items-center`, styles.customColor]}
         onPress={updateProfile}
       >
-        <Text style={tw`text-gray-900 font-bold text-lg`}>Update Profile</Text>
+        {isLoading ? (
+          <ActivityIndicator size="large" color="#030813" />
+        ) : (
+          <Text style={tw`text-gray-900 font-bold text-lg`}>
+            Update Profile
+          </Text>
+        )}
       </TouchableOpacity>
     </View>
   );

@@ -44,6 +44,8 @@ const RideInProgress = () => {
         setRatingModalVisible(true);
         // Now, navigate to OneRequestScreen
         // navigation.navigate("RideInProgressScreen");
+
+        // Update Financial Data
       })
       .catch((error) => {
         console.error("Error updating ride status:", error);
