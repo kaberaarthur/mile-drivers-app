@@ -89,7 +89,7 @@ const HistoryScreen = () => {
           const querySnapshot = await firebase
             .firestore()
             .collection("rides")
-            .where("driverAuthID", "==", currentUser.uid) // Use currentUser's UID
+            .where("driverId", "==", currentUser.uid) // Use currentUser's UID
             .where("rideStatus", "==", "4") // Status for Completed Rides
             .where("dateCreated", ">=", firstDayOfMonth) // Filter rides with dateCreated >= first day of the month
             .where("dateCreated", "<=", lastDayOfMonth) // Filter rides with dateCreated <= last day of the month
@@ -151,7 +151,7 @@ const HistoryScreen = () => {
           const querySnapshot = await firebase
             .firestore()
             .collection("rides")
-            .where("driverAuthID", "==", currentUser.uid) // Use currentUser's UID
+            .where("driverId", "==", currentUser.uid) // Use currentUser's UID
             .where("rideStatus", "==", "4") // Status for Completed Rides
             .where("dateCreated", ">=", firstDayOfMonth) // Filter rides with dateCreated >= first day of the monthy
             .where("dateCreated", "<=", lastDayOfMonth) // Filter rides with dateCreated <= last day of the month

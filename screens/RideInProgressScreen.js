@@ -159,10 +159,10 @@ const RideInProgress = () => {
     updateRiderRatingByAuthID(riderAuthID, newRating);
 
     // Close the modal after rating
-    // setRatingModalVisible(false);
+    setRatingModalVisible(false);
 
     // Navigate to the HomeScreen
-    // navigation.navigate("HomeScreen");
+    navigation.navigate("HomeScreen");
   };
 
   return (
