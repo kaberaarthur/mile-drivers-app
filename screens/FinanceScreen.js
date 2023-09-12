@@ -5,6 +5,7 @@ import tw from "tailwind-react-native-classnames";
 import { useNavigation } from "@react-navigation/native";
 import { setPerson, selectPerson } from "../slices/personSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { ActivityIndicator } from "react-native";
 
 import { db, auth } from "../firebaseConfig";
 import firebase from "firebase/compat/app";
@@ -12,6 +13,8 @@ import firebase from "firebase/compat/app";
 const FinanceScreen = () => {
   const navigation = useNavigation();
   const person = useSelector(selectPerson);
+  const [isLoading, setIsLoading] = useState(false);
+
   const [selectedButton, setSelectedButton] = useState(null);
   const [filteredRides, setFilteredRides] = useState([]);
   const [totalEarned, setTotalEarned] = useState(0);
@@ -76,7 +79,7 @@ const FinanceScreen = () => {
               // Update the transactionsList state with the new data
               setTransactionsList(newTransactionsList);
 
-              console.log("Transactions ListItem: ", newTransactionsList);
+              console.log("Transactions List: ", newTransactionsList);
             })
             .catch((error) => {
               console.error("Error fetching data from driverFinances:", error);
@@ -90,33 +93,66 @@ const FinanceScreen = () => {
     }
   }, [person]);
 
-  // Collect data from driver's Account Balance
-  const checkBalance = () => {
+  const checkBalance = async () => {
     console.log("Current Driver: ", person["authID"]);
 
     const collectionRef = db.collection("driverCurrentBalance");
     const documentId = person["authID"];
 
-    collectionRef
-      .doc(documentId)
-      .get()
-      .then((doc) => {
-        if (doc.exists) {
-          // Document with the specified ID exists
-          console.log("Document data:", doc.data());
-        } else {
-          // Document does not exist
-          console.log("Document does not exist.");
-        }
-      })
-      .catch((error) => {
-        console.error("Error checking document:", error);
-      });
+    try {
+      const doc = await collectionRef.doc(documentId).get();
+
+      if (doc.exists) {
+        // Document with the specified ID exists
+        const balance = doc.data()["balance"];
+        console.log("Document data:", doc.data());
+        return balance; // Resolve the promise with the balance
+      } else {
+        // Document does not exist
+        console.log("Document does not exist.");
+        return null; // Resolve with null if the document doesn't exist
+      }
+    } catch (error) {
+      console.error("Error checking document:", error);
+      throw error; // Throw the error for handling at a higher level if needed
+    }
   };
 
-  const handleWithdrawal = () => {
-    console.log("Withdrawal Completed");
-    checkBalance();
+  // Update Each Transation to paid == true
+  const updatePaidField = async (transactionId) => {
+    try {
+      const transactionRef = db.collection("driverFinances").doc(transactionId);
+
+      await transactionRef.update({
+        paid: true,
+      });
+
+      console.log(`Transaction with ID ${transactionId} updated.`);
+    } catch (error) {
+      console.error("Error updating transaction:", error);
+    }
+  };
+
+  const handleWithdrawal = async () => {
+    setIsLoading(true);
+
+    // Implement Payment Code Here Via Daraja API
+    console.log("Cash to Withdraw: " + totalRevenue);
+
+    // Add Code to Change 'paid' to true
+    // Loop through transactionsList and update 'paid' field to true
+    for (const transaction of transactionsList) {
+      if (transaction.paid === false) {
+        await updatePaidField(transaction.id);
+      }
+    }
+
+    setTransactionsList([]);
+    setTotalRevenue(0);
+    setTotalRides(0);
+    setTotalTransactions(0);
+
+    setIsLoading(false);
   };
 
   // Reusable function to format a Firestore Timestamp and return an object
@@ -448,18 +484,24 @@ const FinanceScreen = () => {
             disabled={totalRevenue < 200}
           >
             <View style={[tw`flex-1 bg-yellow-600 rounded-sm p-4 ml-2`]}>
-              <View style={tw`flex-row items-center mb-2`}>
-                <Icon
-                  type="ionicon"
-                  name="cash-outline"
-                  color="black"
-                  size={24}
-                />
-              </View>
-              <Text style={tw`text-gray-800 text-sm`}>{"Withdraw"}</Text>
-              <Text style={tw`text-gray-800 text-xl font-bold`}>
-                Kshs. {parseInt(totalRevenue)}
-              </Text>
+              {isLoading ? (
+                <ActivityIndicator size="large" color="#fff" />
+              ) : (
+                <View>
+                  <View style={tw`flex-row items-center mb-2`}>
+                    <Icon
+                      type="ionicon"
+                      name="cash-outline"
+                      color="black"
+                      size={24}
+                    />
+                  </View>
+                  <Text style={tw`text-gray-800 text-sm`}>{"Withdraw"}</Text>
+                  <Text style={tw`text-gray-800 text-xl font-bold`}>
+                    {"Kshs. " + parseInt(totalRevenue)}
+                  </Text>
+                </View>
+              )}
             </View>
           </TouchableOpacity>
         </View>
