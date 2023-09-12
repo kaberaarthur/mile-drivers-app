@@ -90,6 +90,35 @@ const FinanceScreen = () => {
     }
   }, [person]);
 
+  // Collect data from driver's Account Balance
+  const checkBalance = () => {
+    console.log("Current Driver: ", person["authID"]);
+
+    const collectionRef = db.collection("driverCurrentBalance");
+    const documentId = person["authID"];
+
+    collectionRef
+      .doc(documentId)
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          // Document with the specified ID exists
+          console.log("Document data:", doc.data());
+        } else {
+          // Document does not exist
+          console.log("Document does not exist.");
+        }
+      })
+      .catch((error) => {
+        console.error("Error checking document:", error);
+      });
+  };
+
+  const handleWithdrawal = () => {
+    console.log("Withdrawal Completed");
+    checkBalance();
+  };
+
   // Reusable function to format a Firestore Timestamp and return an object
   const formatTimestamp = (timestamp) => {
     // Convert Firestore Timestamp to JavaScript Date
@@ -344,29 +373,17 @@ const FinanceScreen = () => {
   const renderRideCard = (ride) => {
     return (
       <View key={ride.id} style={tw`bg-white p-4 mb-4`}>
-        <View style={tw`flex-row items-center mb-2`}>
-          <Image
-            source={{
-              uri: `https://randomuser.me/api/portraits/med/${getRandomGender()}/${getRandomNumber()}.jpg`,
-            }}
-            style={tw`w-16 h-16 rounded-lg`}
-          />
-          <Text style={tw`text-lg ml-2`}>{ride.riderName}</Text>
-        </View>
         <Text style={tw`text-gray-900 text-lg font-bold mb-1`}>
-          Kshs. {ride.totalFareBeforeDeduction}
+          Ride: {ride.rideId}
         </Text>
-        <Text style={tw`text-gray-900`}>
-          {ride.rideTravelInformation[0]["distance"]["text"]}
-        </Text>
-        <View style={tw`border-t border-gray-300 mt-2 pt-2`}>
-          <Text style={tw`text-gray-400`}>PICK UP</Text>
+        <View style={tw`border-t border-gray-300 mt-2`}>
+          <Text style={tw`text-gray-400`}>Total Amount</Text>
           <Text style={tw`text-gray-900 font-bold text-lg`}>
-            {ride.rideOrigin[0]["description"]}
+            {ride.totalAmount}
           </Text>
-          <Text style={tw`text-gray-400 mt-2`}>DROP OFF</Text>
+          <Text style={tw`text-gray-400 mt-2`}>Total Revenue</Text>
           <Text style={tw`text-gray-900 font-bold text-lg`}>
-            {ride.rideDestination[0]["description"]}
+            {ride.driverRevenue}
           </Text>
         </View>
       </View>
@@ -426,25 +443,30 @@ const FinanceScreen = () => {
               {totalTransactions}
             </Text>
           </View>
-          <View style={[tw`flex-1 bg-yellow-600 rounded-sm p-4 ml-2`]}>
-            <View style={tw`flex-row items-center mb-2`}>
-              <Icon
-                type="ionicon"
-                name="cash-outline"
-                color="black"
-                size={24}
-              />
+          <TouchableOpacity
+            onPress={handleWithdrawal}
+            disabled={totalRevenue < 200}
+          >
+            <View style={[tw`flex-1 bg-yellow-600 rounded-sm p-4 ml-2`]}>
+              <View style={tw`flex-row items-center mb-2`}>
+                <Icon
+                  type="ionicon"
+                  name="cash-outline"
+                  color="black"
+                  size={24}
+                />
+              </View>
+              <Text style={tw`text-gray-800 text-sm`}>{"Withdraw"}</Text>
+              <Text style={tw`text-gray-800 text-xl font-bold`}>
+                Kshs. {parseInt(totalRevenue)}
+              </Text>
             </View>
-            <Text style={tw`text-gray-800 text-sm`}>{"Withdraw"}</Text>
-            <Text style={tw`text-gray-800 text-xl font-bold`}>
-              Kshs. {parseInt(totalRevenue)}
-            </Text>
-          </View>
+          </TouchableOpacity>
         </View>
 
         {/* Rides History */}
         <View style={tw`py-4`}>
-          {ridesData.map((ride) => renderRideCard(ride))}
+          {transactionsList.map((ride) => renderRideCard(ride))}
         </View>
       </ScrollView>
     </View>
