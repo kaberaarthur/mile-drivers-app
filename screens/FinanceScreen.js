@@ -3,12 +3,15 @@ import { View, Text, TouchableOpacity, ScrollView, Image } from "react-native";
 import { Icon } from "react-native-elements";
 import tw from "tailwind-react-native-classnames";
 import { useNavigation } from "@react-navigation/native";
+import { setPerson, selectPerson } from "../slices/personSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 import { db, auth } from "../firebaseConfig";
 import firebase from "firebase/compat/app";
 
 const FinanceScreen = () => {
   const navigation = useNavigation();
+  const person = useSelector(selectPerson);
   const [selectedButton, setSelectedButton] = useState(null);
   const [filteredRides, setFilteredRides] = useState([]);
   const [totalEarned, setTotalEarned] = useState(0);
@@ -17,6 +20,48 @@ const FinanceScreen = () => {
   const [ridesData, setRidesData] = useState([]);
   const [rideDateIDs, setRideDateIDs] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
+
+  // New Data
+  const [totalTransactions, setTotalTransactions] = useState(0);
+  const [totalRevenue, setTotalRevenue] = useState(0);
+
+  console.log("Finances User: ", person["authID"]);
+
+  useEffect(() => {
+    if (person) {
+      // Fetch data from Firestore using the currentUser's UID and date filter
+      const fetchData = () => {
+        try {
+          const querySnapshot = firebase
+            .firestore()
+            .collection("driverFinances")
+            .where("driverId", "==", person["authID"])
+            .where("paid", "==", false);
+
+          querySnapshot
+            .get()
+            .then((snapshot) => {
+              if (snapshot.empty) {
+                console.log("No documents found in the collection.");
+                return;
+              }
+
+              snapshot.forEach((doc) => {
+                console.log("Document ID: ", doc.id);
+                console.log("Document Data: ", doc.data());
+              });
+            })
+            .catch((error) => {
+              console.error("Error fetching data from driverFinances:", error);
+            });
+        } catch (error) {
+          console.error("Error fetching data from driverFinances:", error);
+        }
+      };
+
+      fetchData();
+    }
+  }, [person]);
 
   // Reusable function to format a Firestore Timestamp and return an object
   const formatTimestamp = (timestamp) => {
@@ -340,10 +385,15 @@ const FinanceScreen = () => {
         <View style={tw`flex-row pt-4 px-4`}>
           <View style={[tw`flex-1 bg-yellow-400 rounded-sm p-4 mr-2`]}>
             <View style={tw`flex-row items-center mb-2`}>
-              <Icon type="ionicon" name="car-outline" color="black" size={24} />
+              <Icon
+                type="ionicon"
+                name="list-outline"
+                color="black"
+                size={24}
+              />
             </View>
             <Text style={tw`text-gray-800 text-sm`}>
-              {"Total Jobs   (Month)"}
+              {"Total Transactions"}
             </Text>
             <Text style={tw`text-gray-800 text-xl font-bold`}>
               {totalRides}
