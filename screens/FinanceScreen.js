@@ -23,6 +23,7 @@ const FinanceScreen = () => {
 
   // New Data
   const [totalTransactions, setTotalTransactions] = useState(0);
+  const [transactionsList, setTransactionsList] = useState([]);
   const [totalRevenue, setTotalRevenue] = useState(0);
 
   console.log("Finances User: ", person["authID"]);
@@ -41,15 +42,41 @@ const FinanceScreen = () => {
           querySnapshot
             .get()
             .then((snapshot) => {
+              const totalDocuments = snapshot.size;
+              setTotalTransactions(totalDocuments);
+
               if (snapshot.empty) {
                 console.log("No documents found in the collection.");
                 return;
               }
 
+              const totalRevenues = [];
+              const newTransactionsList = [];
+
               snapshot.forEach((doc) => {
+                const id = doc.id;
+                const data = doc.data();
+
                 console.log("Document ID: ", doc.id);
-                console.log("Document Data: ", doc.data());
+                console.log("Document Data: ", doc.data()["driverRevenue"]);
+
+                // Append to totalRevenue
+                totalRevenues.push(doc.data()["driverRevenue"]);
+                // Append to newTransactionsList
+                newTransactionsList.push({ id, ...data });
               });
+
+              const revenuesSum = totalRevenues.reduce(
+                (accumulator, currentValue) => accumulator + currentValue,
+                0
+              );
+
+              console.log("All Revenues: ", revenuesSum);
+              setTotalRevenue(revenuesSum);
+              // Update the transactionsList state with the new data
+              setTransactionsList(newTransactionsList);
+
+              console.log("Transactions ListItem: ", newTransactionsList);
             })
             .catch((error) => {
               console.error("Error fetching data from driverFinances:", error);
@@ -396,7 +423,7 @@ const FinanceScreen = () => {
               {"Total Transactions"}
             </Text>
             <Text style={tw`text-gray-800 text-xl font-bold`}>
-              {totalRides}
+              {totalTransactions}
             </Text>
           </View>
           <View style={[tw`flex-1 bg-yellow-600 rounded-sm p-4 ml-2`]}>
@@ -408,11 +435,9 @@ const FinanceScreen = () => {
                 size={24}
               />
             </View>
-            <Text style={tw`text-gray-800 text-sm`}>
-              {"Earned Cash (Month)"}
-            </Text>
+            <Text style={tw`text-gray-800 text-sm`}>{"Withdraw"}</Text>
             <Text style={tw`text-gray-800 text-xl font-bold`}>
-              Kshs. {totalEarned}
+              Kshs. {parseInt(totalRevenue)}
             </Text>
           </View>
         </View>
